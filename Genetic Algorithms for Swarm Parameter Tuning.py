@@ -403,8 +403,9 @@ def __update__(tick: int) -> None:
 		for other in range(n):
 			if other != boid:
 				position_other = positions[other]
+				difference = position_other - position
 				if numpy.einsum(
-					"...i,...i", position_other - position, position_other - position
+					"...i,...i", difference, difference
 				) < radiusSeparationSquared:
 					c -= position_other - position
 		separations[boid] = c
@@ -417,8 +418,9 @@ def __update__(tick: int) -> None:
 			if other != boid:
 				position_other = positions[other]
 				velocity_other = velocities[other]
+				difference = position_other - position
 				if numpy.einsum(
-					"...i,...i", position_other - position, position_other - position
+					"...i,...i", difference, difference
 				) < radiusAlignmentSquared:
 					c += velocity_other
 					neighbours += 1.0
@@ -431,8 +433,9 @@ def __update__(tick: int) -> None:
 		for other in range(n):
 			if other != boid:
 				position_other = positions[other]
+				difference = position_other - position
 				if numpy.einsum(
-					"...i,...i", position_other - position, position_other - position
+					"...i,...i", difference, difference
 				) < radiusCohesionSquared:
 					c += position_other
 					neighbours += 1.0
