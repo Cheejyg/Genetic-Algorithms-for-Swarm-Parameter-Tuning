@@ -41,7 +41,6 @@ inputFilename = None
 sceneFilename = None
 outputFilename = None
 verbosity = None
-sceneFile = None
 outputFile = None
 output = {}
 
@@ -75,6 +74,7 @@ cohesions = None
 
 def __main__() -> None:
 	__argparse__()
+	__global__()
 	
 	return
 
@@ -113,6 +113,209 @@ def __argparse__() -> None:
 	sceneFilename = str(args.scene)
 	outputFilename = str(args.output)
 	verbosity = args.verbosity if args.verbosity else 0
+	
+	return
+
+
+def __global__() -> None:
+	global inputFilename
+	global sceneFilename
+	global outputFilename
+	global verbosity
+	global outputFile
+	global output
+	global boidSize
+	global radiusSeparation
+	global radiusAlignment
+	global radiusCohesion
+	global weightSeparation
+	global weightAlignment
+	global weightCohesion
+	global maximumSpeed
+	global dimension
+	global width
+	global height
+	global depth
+	global ticks
+	global n
+	global positions
+	global rotations
+	global velocities
+	global separations
+	global alignments
+	global cohesions
+	
+	try:
+		with open(inputFilename, "rt") as input_file:
+			inputs = json.load(input_file)
+		
+		boidSize = inputs["boidSize"]
+		radiusSeparation = inputs["radii"]["separation"]
+		radiusAlignment = inputs["radii"]["alignment"]
+		radiusCohesion = inputs["radii"]["cohesion"]
+		weightSeparation = inputs["weights"]["separation"]
+		weightAlignment = inputs["weights"]["alignment"]
+		weightCohesion = inputs["weights"]["cohesion"]
+		maximumSpeed = inputs["maximumSpeed"]
+	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
+		print("EXCEPTION: %s" % (str(e)))
+		
+		boidSize = random.random()
+		radiusSeparation = random.random()
+		radiusAlignment = random.random()
+		radiusCohesion = random.random()
+		weightSeparation = random.random()
+		weightAlignment = random.random()
+		weightCohesion = random.random()
+		maximumSpeed = random.random()
+	
+	try:
+		with open(sceneFilename, "rt") as scene_file:
+			scene = json.load(scene_file)
+		
+		ticks = scene["ticks"]
+		positions = numpy.array(scene["boids"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
+		rotations = numpy.array(scene["boids"]["rotations"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
+		velocities = numpy.array(scene["boids"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
+		n = positions.shape[0]
+		dimension = positions.shape[1]
+		width = scene["window"]["width"]
+		height = scene["window"]["height"]
+		if dimension > 2:
+			depth = scene["window"]["depth"]
+		
+		if positions.shape[0] != n or positions.shape[1] != dimension:
+			raise IndexError
+	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
+		print("EXCEPTION: %s" % (str(e)))
+		
+		dimension = random.randint(1, 3) \
+			if dimension is None else dimension
+		width = random.randint(10, 300) \
+			if width is None else width
+		height = random.randint(10, 300) \
+			if height is None else height
+		if dimension > 2 and depth is None:
+			depth = random.randint(10, 300)  # if depth is None else depth
+		ticks = random.randint(1, 1024) \
+			if ticks is None else ticks
+		n = random.randint(2, 2048) \
+			if n is None else n
+		positions = (min(width, height) / (40 / 9)) * numpy.random.randn(n, dimension) \
+			if positions is None else positions
+		rotations = numpy.random.rand(n, dimension) \
+			if rotations is None else rotations
+		velocities = numpy.random.randn(n, dimension) \
+			if velocities is None else velocities
+		
+		positions[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		rotations[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		velocities[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+	
+	# OVERRIDE
+	verbosity = 1
+	# dimension = 2
+	# n = 4
+	ticks = 1000
+	if positions.shape[0] != n or positions.shape[1] != dimension:
+		print("OVERRIDE")
+		
+		dimension = random.randint(1, 3) \
+			if dimension is None else dimension
+		width = random.randint(10, 300) \
+			if width is None else width
+		height = random.randint(10, 300) \
+			if height is None else height
+		if dimension > 2 and depth is None:
+			depth = random.randint(10, 300)  # if depth is None else depth
+		ticks = random.randint(1, 1024) \
+			if ticks is None else ticks
+		n = random.randint(2, 2048) \
+			if n is None else n
+		positions = (min(width, height) / (40 / 9)) * numpy.random.randn(n, dimension) \
+			if positions is None or positions.shape[0] != n or positions.shape[1] != dimension else positions
+		rotations = numpy.random.rand(n, dimension) \
+			if rotations is None or rotations.shape[0] != n or rotations.shape[1] != dimension else rotations
+		velocities = numpy.random.randn(n, dimension) \
+			if velocities is None or velocities.shape[0] != n or velocities.shape[1] != dimension else velocities
+		
+		positions[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		rotations[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		velocities[0] = numpy.array(
+			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+	
+	if verbosity > 0:
+		print(
+			"------------------------------------------------------------"
+			"------------------------------------------------------------"
+		)
+		print("{")
+		print(
+			"\t\"n\": %d, "
+			"\"ticks\": %d, " % (n, ticks)
+		)
+		print(
+			"\t\"boids\": {\n"
+			"\t\t\"positions\": %s, \n"
+			"\t\t\"velocities\": %s \n"
+			"\t}, "
+			% (str(positions.tolist()), str(velocities.tolist()))
+		)
+		print(
+			"\t\"parameters\": {\n"
+			"\t\t\"radiuses\": {\n"
+			"\t\t\t\"separation\": %f, \n"
+			"\t\t\t\"alignment\": %f, \n"
+			"\t\t\t\"cohesion\": %f \n"
+			"\t\t}, \n"
+			"\t\t\"weights\": {\n"
+			"\t\t\t\"separation\": %f, \n"
+			"\t\t\t\"alignment\": %f, \n"
+			"\t\t\t\"cohesion\": %f \n"
+			"\t\t}\n"
+			"\t}" % (
+				radiusSeparation, radiusAlignment, radiusCohesion, 
+				weightSeparation, weightAlignment, weightCohesion
+			)
+		)
+		print("}")
+		print(
+			"------------------------------------------------------------"
+			"------------------------------------------------------------"
+		)
+		if verbosity > 1:
+			outputFile = open(outputFilename, "at")
+			
+			output["n"] = n
+			output["ticks"] = ticks
+			output["boids"] = {
+				"positions": str(positions).replace('\n', ""), 
+				"rotations": str(rotations).replace('\n', ""), 
+				"velocities": str(velocities).replace('\n', "")
+			}
+			
+			outputFile.write(json.dumps(output))
+	
+	# Normalise
+	total_weights = weightSeparation + weightAlignment + weightCohesion
+	weightSeparation /= total_weights
+	weightAlignment /= total_weights
+	weightCohesion /= total_weights
+	
+	separations = numpy.zeros((n, dimension), dtype=float, order=None)
+	alignments = numpy.zeros((n, dimension), dtype=float, order=None)
+	cohesions = numpy.zeros((n, dimension), dtype=float, order=None)
 	
 	return
 
