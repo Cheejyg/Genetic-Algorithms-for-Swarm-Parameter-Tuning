@@ -439,7 +439,10 @@ def __update__(tick: int) -> None:
 	velocities *= 0.9
 	
 	if graph:
+		matplotlib.pyplot.figure(1).clear()
 		matplotlib.pyplot.title("Tick %d" % tick)
+		matplotlib.pyplot.xlim(-width, width)
+		matplotlib.pyplot.ylim(-height, height)
 		
 		if dimension == 1:
 			scatter = matplotlib.pyplot.scatter(
