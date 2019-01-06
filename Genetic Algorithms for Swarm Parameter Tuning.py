@@ -428,6 +428,17 @@ def __update__(tick: int) -> None:
 					neighbours += 1.0
 		cohesions[boid] = c if neighbours < 1 else (c / neighbours) - position
 	
+	# Normalise
+	separations = numpy.nan_to_num(
+		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(1, n).T)
+	)
+	alignments = numpy.nan_to_num(
+		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(1, n).T)
+	)
+	cohesions = numpy.nan_to_num(
+		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(1, n).T)
+	)
+	
 	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
 	
 	velocities += target
