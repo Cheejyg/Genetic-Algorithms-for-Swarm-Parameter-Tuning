@@ -1,0 +1,18 @@
+{
+	"boidSize": 0.10922,
+	"radii": {
+		"separation": 2.0,
+		"alignment": 4.0,
+		"cohesion": 8.0,
+		"predator": 4.0,
+		"prey": 8.0
+	},
+	"weights": {
+		"separation": 1.0,
+		"alignment": 1.0,
+		"cohesion": 1.0,
+		"prey": 1.0,
+		"predator": 1.0
+	},
+	"maximumSpeed": 54.934993590917414392968320820363
+}
