@@ -49,9 +49,9 @@ ax = None
 scatter = None
 
 boidSize = None
-radiusSeparation = None
-radiusAlignment = None
-radiusCohesion = None
+radiusSeparationSquared = None
+radiusAlignmentSquared = None
+radiusCohesionSquared = None
 weightSeparation = None
 weightAlignment = None
 weightCohesion = None
@@ -128,7 +128,7 @@ def __main__() -> None:
 	
 	if verbosity > 0:
 		if verbosity > 1:
-			outputFile.write(json.dumps(output))
+			json.dump(output, outputFile)
 			outputFile.close()
 	
 	return
@@ -180,9 +180,9 @@ def __global__() -> None:
 	global outputFile
 	global output
 	global boidSize
-	global radiusSeparation
-	global radiusAlignment
-	global radiusCohesion
+	global radiusSeparationSquared
+	global radiusAlignmentSquared
+	global radiusCohesionSquared
 	global weightSeparation
 	global weightAlignment
 	global weightCohesion
@@ -205,9 +205,9 @@ def __global__() -> None:
 			inputs = json.load(input_file)
 		
 		boidSize = inputs["boidSize"]
-		radiusSeparation = inputs["radii"]["separation"]
-		radiusAlignment = inputs["radii"]["alignment"]
-		radiusCohesion = inputs["radii"]["cohesion"]
+		radius_separation = inputs["radii"]["separation"]
+		radius_alignment = inputs["radii"]["alignment"]
+		radius_cohesion = inputs["radii"]["cohesion"]
 		weightSeparation = inputs["weights"]["separation"]
 		weightAlignment = inputs["weights"]["alignment"]
 		weightCohesion = inputs["weights"]["cohesion"]
@@ -216,16 +216,20 @@ def __global__() -> None:
 		print("EXCEPTION: %s" % (str(e)))
 		
 		boidSize = random.random()
-		radiusSeparation = random.random()
-		radiusAlignment = random.random()
-		radiusCohesion = random.random()
+		radius_separation = random.random()
+		radius_alignment = random.random()
+		radius_cohesion = random.random()
 		weightSeparation = random.random()
 		weightAlignment = random.random()
 		weightCohesion = random.random()
 		maximumSpeed = random.random()
-	radiusSeparation += (radiusSeparation * boidSize) + boidSize
-	radiusAlignment += (radiusAlignment * boidSize) + boidSize
-	radiusCohesion += (radiusCohesion * boidSize) + boidSize
+	radius_separation += (radius_separation * boidSize) + boidSize
+	radius_alignment += (radius_alignment * boidSize) + boidSize
+	radius_cohesion += (radius_cohesion * boidSize) + boidSize
+	
+	radiusSeparationSquared = radius_separation * radius_separation
+	radiusAlignmentSquared = radius_alignment * radius_alignment
+	radiusCohesionSquared = radius_cohesion * radius_cohesion
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -343,7 +347,7 @@ def __global__() -> None:
 			"\t\t\t\"cohesion\": %f \n"
 			"\t\t}\n"
 			"\t}" % (
-				radiusSeparation, radiusAlignment, radiusCohesion, 
+				radius_separation, radius_alignment, radius_cohesion, 
 				weightSeparation, weightAlignment, weightCohesion
 			)
 		)
@@ -399,7 +403,9 @@ def __update__(tick: int) -> None:
 		for other in range(n):
 			if other != boid:
 				position_other = positions[other]
-				if numpy.linalg.norm(position_other - position) < radiusSeparation:
+				if numpy.einsum(
+					"...i,...i", position_other - position, position_other - position
+				) < radiusSeparationSquared:
 					c -= position_other - position
 		separations[boid] = c
 	# Alignment
@@ -411,7 +417,9 @@ def __update__(tick: int) -> None:
 			if other != boid:
 				position_other = positions[other]
 				velocity_other = velocities[other]
-				if numpy.linalg.norm(position_other - position) < radiusAlignment:
+				if numpy.einsum(
+					"...i,...i", position_other - position, position_other - position
+				) < radiusAlignmentSquared:
 					c += velocity_other
 					neighbours += 1.0
 		alignments[boid] = c if neighbours < 1 else c / neighbours
@@ -423,7 +431,9 @@ def __update__(tick: int) -> None:
 		for other in range(n):
 			if other != boid:
 				position_other = positions[other]
-				if numpy.linalg.norm(position_other - position) < radiusCohesion:
+				if numpy.einsum(
+					"...i,...i", position_other - position, position_other - position
+				) < radiusCohesionSquared:
 					c += position_other
 					neighbours += 1.0
 		cohesions[boid] = c if neighbours < 1 else (c / neighbours) - position
