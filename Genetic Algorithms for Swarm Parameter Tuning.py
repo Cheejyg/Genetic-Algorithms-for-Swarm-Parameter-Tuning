@@ -73,8 +73,55 @@ cohesions = None
 
 
 def __main__() -> None:
+	global verbosity
+	global canvas
+	global ax
+	global scatter
+	global dimension
+	global ticks
+	global n
+	
 	__argparse__()
 	__global__()
+	
+	if graph:
+		if 0 < dimension < 4:
+			canvas = matplotlib.pyplot.figure(1)
+			
+			if dimension == 1:
+				matplotlib.pyplot.xlabel("x")
+				matplotlib.pyplot.xlim(-width, width)
+				matplotlib.pyplot.ylabel("y")
+				matplotlib.pyplot.ylim(-0, 0)
+				
+				scatter = matplotlib.pyplot.scatter(
+					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, c="Blue", marker="o"
+				)
+			if dimension == 2:
+				matplotlib.pyplot.xlabel("x")
+				matplotlib.pyplot.xlim(-width, width)
+				matplotlib.pyplot.ylabel("y")
+				matplotlib.pyplot.ylim(-height, height)
+				
+				scatter = matplotlib.pyplot.scatter(
+					positions[:, 0], positions[:, 1], s=8, c="Blue", marker="o"
+				)
+			if dimension == 3:
+				ax = canvas.add_subplot(111, projection="3d")
+				ax.set_xlabel("x")
+				ax.set_ylabel("y")
+				ax.set_zlabel("z")
+				
+				scatter = ax.scatter(
+					positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
+				)
+			
+			matplotlib.pyplot.show()
+	
+	if verbosity > 0:
+		if verbosity > 1:
+			outputFile.write(json.dumps(output))
+			outputFile.close()
 	
 	return
 
@@ -220,7 +267,7 @@ def __global__() -> None:
 	
 	# OVERRIDE
 	verbosity = 1
-	# dimension = 2
+	dimension = 3
 	# n = 4
 	ticks = 1000
 	if positions.shape[0] != n or positions.shape[1] != dimension:
@@ -304,8 +351,6 @@ def __global__() -> None:
 				"rotations": str(rotations).replace('\n', ""), 
 				"velocities": str(velocities).replace('\n', "")
 			}
-			
-			outputFile.write(json.dumps(output))
 	
 	# Normalise
 	total_weights = weightSeparation + weightAlignment + weightCohesion
