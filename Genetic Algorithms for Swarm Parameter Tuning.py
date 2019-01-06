@@ -116,7 +116,15 @@ def __main__() -> None:
 					positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
 				)
 			
+			animation = matplotlib.animation.FuncAnimation(
+				fig=canvas, func=__update__, frames=ticks, init_func=__global__, fargs=(), save_count=(ticks % 1024), 
+				interval=100, repeat=False
+			)
+			
 			matplotlib.pyplot.show()
+	else:
+		for tick in range(ticks):
+			__update__(tick)
 	
 	if verbosity > 0:
 		if verbosity > 1:
@@ -215,6 +223,9 @@ def __global__() -> None:
 		weightAlignment = random.random()
 		weightCohesion = random.random()
 		maximumSpeed = random.random()
+	radiusSeparation += (radiusSeparation * boidSize) + boidSize
+	radiusAlignment += (radiusAlignment * boidSize) + boidSize
+	radiusCohesion += (radiusCohesion * boidSize) + boidSize
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -267,7 +278,7 @@ def __global__() -> None:
 	
 	# OVERRIDE
 	verbosity = 1
-	dimension = 3
+	dimension = 2
 	# n = 4
 	ticks = 1000
 	if positions.shape[0] != n or positions.shape[1] != dimension:
@@ -361,6 +372,87 @@ def __global__() -> None:
 	separations = numpy.zeros((n, dimension), dtype=float, order=None)
 	alignments = numpy.zeros((n, dimension), dtype=float, order=None)
 	cohesions = numpy.zeros((n, dimension), dtype=float, order=None)
+	
+	return
+
+
+def __update__(tick: int) -> None:
+	global canvas
+	global scatter
+	global dimension
+	global n
+	global positions
+	global velocities
+	global separations
+	global alignments
+	global cohesions
+	
+	'''position = None
+	position_other = None
+	neighbours = None
+	c = None'''
+	
+	# Separation
+	for boid in range(n):
+		position = positions[boid, :]
+		c = numpy.zeros(dimension, dtype=float, order=None)
+		for other in range(n):
+			if other != boid:
+				position_other = positions[other]
+				if numpy.linalg.norm(position_other - position) < radiusSeparation:
+					c -= position_other - position
+		separations[boid] = c
+	# Alignment
+	for boid in range(n):
+		position = positions[boid, :]
+		c = numpy.zeros(dimension, dtype=float, order=None)
+		neighbours = 0.0
+		for other in range(n):
+			if other != boid:
+				position_other = positions[other]
+				velocity_other = velocities[other]
+				if numpy.linalg.norm(position_other - position) < radiusAlignment:
+					c += velocity_other
+					neighbours += 1.0
+		alignments[boid] = c if neighbours < 1 else c / neighbours
+	# Cohesion
+	for boid in range(n):
+		position = positions[boid, :]
+		c = numpy.copy(position)
+		neighbours = 1.0
+		for other in range(n):
+			if other != boid:
+				position_other = positions[other]
+				if numpy.linalg.norm(position_other - position) < radiusCohesion:
+					c += position_other
+					neighbours += 1.0
+		cohesions[boid] = c if neighbours < 1 else (c / neighbours) - position
+	
+	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
+	
+	velocities += target
+	
+	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
+	
+	positions += dT * velocities
+	
+	velocities *= 0.9
+	
+	if graph:
+		matplotlib.pyplot.title("Tick %d" % tick)
+		
+		if dimension == 1:
+			scatter = matplotlib.pyplot.scatter(
+				positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
+			)
+		if dimension == 2:
+			scatter = matplotlib.pyplot.scatter(
+				positions[:, 0], positions[:, 1], s=8, marker="o"
+			)
+		if dimension == 3:
+			scatter = ax.scatter(
+				positions[:, 0], positions[:, 1], positions[:, 2], s=8, marker="o"
+			)
 	
 	return
 
