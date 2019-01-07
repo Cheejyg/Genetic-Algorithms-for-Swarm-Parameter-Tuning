@@ -223,14 +223,14 @@ def __global__() -> None:
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		print("EXCEPTION: %s" % (str(e)))
 		
-		boidSize = random.random()
-		radius_separation = random.random()
-		radius_alignment = random.random()
-		radius_cohesion = random.random()
+		boidSize = random.random() * 10
+		radius_separation = random.random() + 1
+		radius_alignment = random.random() * 100
+		radius_cohesion = random.random() * 100
 		weightSeparation = random.random()
 		weightAlignment = random.random()
 		weightCohesion = random.random()
-		maximumSpeed = random.random()
+		maximumSpeed = random.random() * 100
 	radius_separation += (radius_separation * boidSize) + boidSize
 	radius_alignment += (radius_alignment * boidSize) + boidSize
 	radius_cohesion += (radius_cohesion * boidSize) + boidSize
