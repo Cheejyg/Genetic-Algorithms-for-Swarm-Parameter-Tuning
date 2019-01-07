@@ -259,15 +259,10 @@ def __global__() -> None:
 		weightCohesion = random.random()
 		weightPredator = random.random()
 		maximumSpeed = random.random() * 100
-	radius_separation += (radius_separation * boidSize) + boidSize
-	radius_alignment += (radius_alignment * boidSize) + boidSize
-	radius_cohesion += (radius_cohesion * boidSize) + boidSize
-	radius_predator += (radius_predator * boidSize) + boidSize
-	
-	radiusSeparationSquared = radius_separation * radius_separation
-	radiusAlignmentSquared = radius_alignment * radius_alignment
-	radiusCohesionSquared = radius_cohesion * radius_cohesion
-	radiusPredatorSquared = radius_predator * radius_predator
+	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
+	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
+	radiusCohesionSquared = (radius_cohesion + (radius_cohesion * boidSize) + boidSize) ** 2
+	radiusPredatorSquared = (radius_predator + (radius_predator * boidSize) + boidSize) ** 2
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -421,6 +416,7 @@ def __global__() -> None:
 			)
 		print(
 			"\t\"parameters\": {\n"
+			"\t\t\"boidSize\": %f,\n"
 			"\t\t\"radiuses\": {\n"
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
@@ -432,10 +428,13 @@ def __global__() -> None:
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f, \n"
 			"\t\t\t\"predator\": %f\n"
-			"\t\t}\n"
+			"\t\t}, \n"
+			"\t\t\"maximumSpeed\": %f\n"
 			"\t}" % (
+				boidSize, 
 				radius_separation, radius_alignment, radius_cohesion, radius_predator, 
-				weightSeparation, weightAlignment, weightCohesion, weightPredator
+				weightSeparation, weightAlignment, weightCohesion, weightPredator, 
+				maximumSpeed
 			)
 		)
 		print("}")
