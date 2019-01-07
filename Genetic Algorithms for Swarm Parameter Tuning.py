@@ -730,7 +730,7 @@ def __update__(tick: int) -> None:
 	
 	target = \
 		(
-			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)\
+			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
 			+ (weightPredator * predator) + (weightPrey * prey)
 		)
 	
