@@ -35,6 +35,7 @@ random.seed(24)
 numpy.random.seed(24)
 dT = 0.1
 graph = True
+graph_type = 1  # [1 = Normal (Standard), 2 = History (Path)]
 measure = False
 
 inputFilename = None
@@ -396,11 +397,6 @@ def __update__(tick: int) -> None:
 	global differences
 	global distances
 	
-	'''position = None
-	position_other = None
-	neighbours = None
-	c = None'''
-	
 	differences = positions - positions.reshape(n, 1, dimension)
 	distances = numpy.einsum("...i,...i", differences, differences)
 	
@@ -420,12 +416,16 @@ def __update__(tick: int) -> None:
 	matrix_cohesion = (distances < radiusCohesionSquared) * (distances != 0)
 	cohesions = numpy.nan_to_num(
 		(positions + numpy.sum(
-			matrix_cohesion.reshape(n, n, 1)
-			* numpy.repeat(positions.reshape(1, n, dimension), n, axis=0)
-			, axis=1
+			matrix_cohesion.reshape(n, n, 1) * numpy.repeat(positions.reshape(1, n, dimension), n, axis=0), 
+			axis=1
 		)) / (numpy.ones(n) + numpy.sum(matrix_cohesion, axis=0)).reshape(n, 1)
 	) - positions
 	
+	# ------------------------------------------------------------------------------------------------------------------------
+	'''position = None
+	position_other = None
+	neighbours = None
+	c = None'''
 	# ------------------------------------------------------------------------------------------------------------------------
 	'''
 	# Separation
@@ -436,9 +436,7 @@ def __update__(tick: int) -> None:
 			if other != boid:
 				position_other = positions[other]
 				difference = position_other - position
-				if numpy.einsum(
-					"...i,...i", difference, difference
-				) < radiusSeparationSquared:
+				if numpy.einsum("...i,...i", difference, difference) < radiusSeparationSquared:
 					c -= difference
 		separations[boid] = c
 	# Alignment
@@ -495,24 +493,27 @@ def __update__(tick: int) -> None:
 	velocities *= 0.9
 	
 	if graph:
-		matplotlib.pyplot.figure(1).clear()
 		matplotlib.pyplot.title("Tick %d" % tick)
-		matplotlib.pyplot.xlim(-width, width)
-		matplotlib.pyplot.ylim(-height, height)
-		
-		if dimension == 1:
-			scatter = matplotlib.pyplot.scatter(
-				positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, c="Blue", marker="o"
-			)
-		if dimension == 2:
-			scatter = matplotlib.pyplot.scatter(
-				positions[:, 0], positions[:, 1], s=8, c="Blue", marker="o"
-			)
-		if dimension == 3:
-			ax = canvas.add_subplot(111, projection="3d")
-			scatter = ax.scatter(
-				positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
-			)
+		if graph_type == 1:
+			if dimension == 1:
+				scatter.set_offsets(numpy.insert(positions, [1], [0], axis=1))
+			if dimension == 2:
+				scatter.set_offsets(positions)
+			if dimension == 3:
+				scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
+		elif graph_type == 2:
+			if dimension == 1:
+				scatter = matplotlib.pyplot.scatter(
+					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
+				)
+			if dimension == 2:
+				scatter = matplotlib.pyplot.scatter(
+					positions[:, 0], positions[:, 1], s=8, marker="o"
+				)
+			if dimension == 3:
+				scatter = ax.scatter(
+					positions[:, 0], positions[:, 1], positions[:, 2], s=8, marker="o"
+				)
 	
 	return
 
