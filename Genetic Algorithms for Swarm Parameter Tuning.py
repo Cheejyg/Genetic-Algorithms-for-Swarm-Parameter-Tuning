@@ -71,6 +71,9 @@ separations = None
 alignments = None
 cohesions = None
 
+differences = None
+distances = None
+
 
 def __main__() -> None:
 	global verbosity
@@ -118,7 +121,7 @@ def __main__() -> None:
 			
 			animation = matplotlib.animation.FuncAnimation(
 				fig=canvas, func=__update__, frames=ticks, init_func=__global__, fargs=(), save_count=(ticks % 1024), 
-				interval=100, repeat=False
+				interval=1, repeat=False
 			)
 			
 			matplotlib.pyplot.show()
@@ -283,7 +286,7 @@ def __global__() -> None:
 	# OVERRIDE
 	verbosity = 1
 	dimension = 2
-	# n = 4
+	n = 400
 	ticks = 1000
 	if positions.shape[0] != n or positions.shape[1] != dimension:
 		print("OVERRIDE")
@@ -390,12 +393,41 @@ def __update__(tick: int) -> None:
 	global separations
 	global alignments
 	global cohesions
+	global differences
+	global distances
 	
 	'''position = None
 	position_other = None
 	neighbours = None
 	c = None'''
 	
+	differences = positions - positions.reshape(n, 1, dimension)
+	distances = numpy.einsum("...i,...i", differences, differences)
+	
+	# Separation
+	matrix_separation = (distances < radiusSeparationSquared) * (distances != 0)
+	separations = numpy.nan_to_num(
+		numpy.sum(differences * matrix_separation.reshape(n, n, 1), axis=1) * -1
+	)
+	# Alignment
+	matrix_alignment = (distances < radiusAlignmentSquared) * (distances != 0)
+	alignments = numpy.nan_to_num(
+		numpy.sum(
+			matrix_alignment.reshape(n, n, 1) * numpy.repeat(velocities.reshape(1, n, dimension), n, axis=0), axis=1
+		) / numpy.sum(matrix_alignment, axis=0).reshape(n, 1)
+	)
+	# Cohesion
+	matrix_cohesion = (distances < radiusCohesionSquared) * (distances != 0)
+	cohesions = numpy.nan_to_num(
+		(positions + numpy.sum(
+			matrix_cohesion.reshape(n, n, 1)
+			* numpy.repeat(positions.reshape(1, n, dimension), n, axis=0)
+			, axis=1
+		)) / (numpy.ones(n) + numpy.sum(matrix_cohesion, axis=0)).reshape(n, 1)
+	) - positions
+	
+	# ------------------------------------------------------------------------------------------------------------------------
+	'''
 	# Separation
 	for boid in range(n):
 		position = positions[boid, :]
@@ -438,6 +470,8 @@ def __update__(tick: int) -> None:
 					c += position_other
 					neighbours += 1.0
 		cohesions[boid] = c if neighbours < 1 else (c / neighbours) - position
+	'''
+	# ------------------------------------------------------------------------------------------------------------------------
 	
 	# Normalise
 	separations = numpy.nan_to_num(
