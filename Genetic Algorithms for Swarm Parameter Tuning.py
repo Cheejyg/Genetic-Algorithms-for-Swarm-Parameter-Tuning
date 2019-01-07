@@ -407,7 +407,7 @@ def __update__(tick: int) -> None:
 				if numpy.einsum(
 					"...i,...i", difference, difference
 				) < radiusSeparationSquared:
-					c -= position_other - position
+					c -= difference
 		separations[boid] = c
 	# Alignment
 	for boid in range(n):
@@ -418,9 +418,8 @@ def __update__(tick: int) -> None:
 			if other != boid:
 				position_other = positions[other]
 				velocity_other = velocities[other]
-				difference = position_other - position
 				if numpy.einsum(
-					"...i,...i", difference, difference
+					"...i,...i", position_other - position, position_other - position
 				) < radiusAlignmentSquared:
 					c += velocity_other
 					neighbours += 1.0
@@ -433,9 +432,8 @@ def __update__(tick: int) -> None:
 		for other in range(n):
 			if other != boid:
 				position_other = positions[other]
-				difference = position_other - position
 				if numpy.einsum(
-					"...i,...i", difference, difference
+					"...i,...i", position_other - position, position_other - position
 				) < radiusCohesionSquared:
 					c += position_other
 					neighbours += 1.0
@@ -470,15 +468,16 @@ def __update__(tick: int) -> None:
 		
 		if dimension == 1:
 			scatter = matplotlib.pyplot.scatter(
-				positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
+				positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, c="Blue", marker="o"
 			)
 		if dimension == 2:
 			scatter = matplotlib.pyplot.scatter(
-				positions[:, 0], positions[:, 1], s=8, marker="o"
+				positions[:, 0], positions[:, 1], s=8, c="Blue", marker="o"
 			)
 		if dimension == 3:
+			ax = canvas.add_subplot(111, projection="3d")
 			scatter = ax.scatter(
-				positions[:, 0], positions[:, 1], positions[:, 2], s=8, marker="o"
+				positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
 			)
 	
 	return
