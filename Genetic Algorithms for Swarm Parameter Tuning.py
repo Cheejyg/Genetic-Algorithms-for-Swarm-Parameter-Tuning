@@ -49,14 +49,17 @@ output = {}
 canvas = None
 ax = None
 scatter = None
+scatterPredators = None
 
 boidSize = None
 radiusSeparationSquared = None
 radiusAlignmentSquared = None
 radiusCohesionSquared = None
+radiusPredatorSquared = None
 weightSeparation = None
 weightAlignment = None
 weightCohesion = None
+weightPredator = None
 maximumSpeed = None
 
 dimension = None
@@ -65,16 +68,23 @@ height = None
 depth = None
 ticks = None
 n = None
+nPredators = None
 positions = None
+positionsPredator = None
 rotations = None
+rotationsPredator = None
 velocities = None
+velocitiesPredator = None
 
 separations = None
 alignments = None
 cohesions = None
+predator = None
 
 differences = None
+differencesPredator = None
 distances = None
+distancesPredator = None
 
 
 def __main__() -> None:
@@ -82,6 +92,7 @@ def __main__() -> None:
 	global canvas
 	global ax
 	global scatter
+	global scatterPredators
 	global dimension
 	global ticks
 	global n
@@ -111,6 +122,9 @@ def __main__() -> None:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], positions[:, 1], s=8, c="Blue", marker="o"
 				)
+				scatterPredators = matplotlib.pyplot.scatter(
+					positionsPredator[:, 0], positionsPredator[:, 1], s=8, c="Red", marker="s"
+				)
 			if dimension == 3:
 				ax = canvas.add_subplot(111, projection="3d")
 				ax.set_xlabel("x")
@@ -122,6 +136,9 @@ def __main__() -> None:
 				
 				scatter = ax.scatter(
 					positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
+				)
+				scatterPredators = ax.scatter(
+					positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2], s=8, c="Red", marker="s"
 				)
 			
 			animation = matplotlib.animation.FuncAnimation(
@@ -191,9 +208,11 @@ def __global__() -> None:
 	global radiusSeparationSquared
 	global radiusAlignmentSquared
 	global radiusCohesionSquared
+	global radiusPredatorSquared
 	global weightSeparation
 	global weightAlignment
 	global weightCohesion
+	global weightPredator
 	global maximumSpeed
 	global dimension
 	global width
@@ -201,12 +220,17 @@ def __global__() -> None:
 	global depth
 	global ticks
 	global n
+	global nPredators
 	global positions
+	global positionsPredator
 	global rotations
+	global rotationsPredator
 	global velocities
+	global velocitiesPredator
 	global separations
 	global alignments
 	global cohesions
+	global predator
 	
 	try:
 		with open(inputFilename, "rt") as input_file:
@@ -216,9 +240,11 @@ def __global__() -> None:
 		radius_separation = inputs["radii"]["separation"]
 		radius_alignment = inputs["radii"]["alignment"]
 		radius_cohesion = inputs["radii"]["cohesion"]
+		radius_predator = inputs["radii"]["predator"]
 		weightSeparation = inputs["weights"]["separation"]
 		weightAlignment = inputs["weights"]["alignment"]
 		weightCohesion = inputs["weights"]["cohesion"]
+		weightPredator = inputs["weights"]["predator"]
 		maximumSpeed = inputs["maximumSpeed"]
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		print("EXCEPTION: %s" % (str(e)))
@@ -227,17 +253,21 @@ def __global__() -> None:
 		radius_separation = random.random() + 1
 		radius_alignment = random.random() * 100
 		radius_cohesion = random.random() * 100
+		radius_predator = random.random() * 100
 		weightSeparation = random.random()
 		weightAlignment = random.random()
 		weightCohesion = random.random()
+		weightPredator = random.random()
 		maximumSpeed = random.random() * 100
 	radius_separation += (radius_separation * boidSize) + boidSize
 	radius_alignment += (radius_alignment * boidSize) + boidSize
 	radius_cohesion += (radius_cohesion * boidSize) + boidSize
+	radius_predator += (radius_predator * boidSize) + boidSize
 	
 	radiusSeparationSquared = radius_separation * radius_separation
 	radiusAlignmentSquared = radius_alignment * radius_alignment
 	radiusCohesionSquared = radius_cohesion * radius_cohesion
+	radiusPredatorSquared = radius_predator * radius_predator
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -247,7 +277,26 @@ def __global__() -> None:
 		positions = numpy.array(scene["boids"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
 		rotations = numpy.array(scene["boids"]["rotations"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
 		velocities = numpy.array(scene["boids"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
+		positions = numpy.array(
+			scene["boids"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		positionsPredator = numpy.array(
+			scene["predators"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		rotations = numpy.array(
+			scene["boids"]["rotations"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		rotationsPredator = numpy.array(
+			scene["predators"]["rotations"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		velocities = numpy.array(
+			scene["boids"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		velocitiesPredator = numpy.array(
+			scene["predators"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
 		n = positions.shape[0]
+		nPredators = positionsPredator.shape[0]
 		dimension = positions.shape[1]
 		width = scene["window"]["width"]
 		height = scene["window"]["height"]
@@ -256,6 +305,9 @@ def __global__() -> None:
 		
 		if positions.shape[0] != n or positions.shape[1] != dimension:
 			raise IndexError
+		if positions.shape[0] != n or positions.shape[1] != dimension \
+			or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension:
+				raise IndexError
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		print("EXCEPTION: %s" % (str(e)))
 		
@@ -271,12 +323,20 @@ def __global__() -> None:
 			if ticks is None else ticks
 		n = random.randint(2, 2048) \
 			if n is None else n
+		nPredators = random.randint(0, round(n * 0.1)) \
+			if nPredators is None else nPredators
 		positions = (min(width, height) / (40 / 9)) * numpy.random.randn(n, dimension) \
 			if positions is None else positions
+		positionsPredator = (min(width, height) / (40 / 9)) * numpy.random.randn(nPredators, dimension) \
+			if positionsPredator is None else positionsPredator
 		rotations = numpy.random.rand(n, dimension) \
 			if rotations is None else rotations
+		rotationsPredator = numpy.random.rand(nPredators, dimension) \
+			if rotationsPredator is None else rotationsPredator
 		velocities = numpy.random.randn(n, dimension) \
 			if velocities is None else velocities
+		velocitiesPredator = numpy.random.randn(nPredators, dimension) \
+			if velocitiesPredator is None else velocitiesPredator
 		
 		positions[0] = numpy.array(
 			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
@@ -292,6 +352,7 @@ def __global__() -> None:
 	verbosity = 1
 	dimension = 2
 	n = 400
+	nPredators = 4
 	ticks = 1000
 	if positions.shape[0] != n or positions.shape[1] != dimension:
 		print("OVERRIDE")
@@ -324,6 +385,49 @@ def __global__() -> None:
 		velocities[0] = numpy.array(
 			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
+	if positions.shape[0] != n or positions.shape[1] != dimension \
+		or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension:
+			print("OVERRIDE")
+			
+			dimension = random.randint(1, 3) \
+				if dimension is None else dimension
+			width = random.randint(10, 300) \
+				if width is None else width
+			height = random.randint(10, 300) \
+				if height is None else height
+			if dimension > 2 and depth is None:
+				depth = random.randint(10, 300)  # if depth is None else depth
+			ticks = random.randint(1, 1024) \
+				if ticks is None else ticks
+			n = random.randint(2, 2048) \
+				if n is None else n
+			nPredators = random.randint(0, round(n * 0.1)) \
+				if nPredators is None else nPredators
+			positions = (min(width, height) / (40 / 9)) * numpy.random.randn(n, dimension) \
+				if positions is None or positions.shape[0] != n or positions.shape[1] != dimension else positions
+			positionsPredator = (min(width, height) / (40 / 9)) * numpy.random.randn(nPredators, dimension) \
+				if positionsPredator is None or positionsPredator.shape[0] != nPredators \
+				or positionsPredator.shape[1] != dimension else positionsPredator
+			rotations = numpy.random.rand(n, dimension) \
+				if rotations is None or rotations.shape[0] != n or rotations.shape[1] != dimension else rotations
+			rotationsPredator = numpy.random.rand(nPredators, dimension) \
+				if rotationsPredator is None or rotationsPredator.shape[0] != nPredators \
+				or rotationsPredator.shape[1] != dimension else rotationsPredator
+			velocities = numpy.random.randn(n, dimension) \
+				if velocities is None or velocities.shape[0] != n or velocities.shape[1] != dimension else velocities
+			velocitiesPredator = numpy.random.randn(nPredators, dimension) \
+				if velocitiesPredator is None or velocitiesPredator.shape[0] != nPredators \
+				or velocitiesPredator.shape[1] != dimension else velocitiesPredator
+			
+			positions[0] = numpy.array(
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+			)
+			rotations[0] = numpy.array(
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+			)
+			velocities[0] = numpy.array(
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+			)
 	
 	if verbosity > 0:
 		print(
@@ -334,6 +438,8 @@ def __global__() -> None:
 		print(
 			"\t\"n\": %d, "
 			"\"ticks\": %d, " % (n, ticks)
+			"\"nPredators\": %d, "
+			"\"ticks\": %d, " % (n, nPredators, ticks)
 		)
 		print(
 			"\t\"boids\": {\n"
@@ -342,21 +448,35 @@ def __global__() -> None:
 			"\t}, "
 			% (str(positions.tolist()), str(velocities.tolist()))
 		)
+		if nPredators > 0:
+			print(
+				"\t\"predators\": {\n"
+				"\t\t\"positions\": %s, \n"
+				"\t\t\"velocities\": %s \n"
+				"\t}, "
+				% (str(positionsPredator.tolist()), str(velocitiesPredator.tolist()))
+			)
 		print(
 			"\t\"parameters\": {\n"
 			"\t\t\"radiuses\": {\n"
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f \n"
+			"\t\t\t\"cohesion\": %f, \n"
+			"\t\t\t\"predator\": %f\n"
 			"\t\t}, \n"
 			"\t\t\"weights\": {\n"
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f \n"
+			"\t\t\t\"cohesion\": %f, \n"
+			"\t\t\t\"predator\": %f\n"
 			"\t\t}\n"
 			"\t}" % (
 				radius_separation, radius_alignment, radius_cohesion, 
 				weightSeparation, weightAlignment, weightCohesion
+				radius_separation, radius_alignment, radius_cohesion, radius_predator, 
+				weightSeparation, weightAlignment, weightCohesion, weightPredator
 			)
 		)
 		print("}")
@@ -368,22 +488,33 @@ def __global__() -> None:
 			outputFile = open(outputFilename, "at")
 			
 			output["n"] = n
+			output["nPredators"] = nPredators
 			output["ticks"] = ticks
 			output["boids"] = {
 				"positions": str(positions).replace('\n', ""), 
 				"rotations": str(rotations).replace('\n', ""), 
 				"velocities": str(velocities).replace('\n', "")
 			}
+			output["predators"] = {
+				"positions": str(positionsPredator).replace('\n', ""), 
+				"rotations": str(rotationsPredator).replace('\n', ""), 
+				"velocities": str(velocitiesPredator).replace('\n', "")
+			}
 	
 	# Normalise
 	total_weights = weightSeparation + weightAlignment + weightCohesion
+	total_weights = \
+		weightSeparation + weightAlignment + weightCohesion \
+		+ weightPredator
 	weightSeparation /= total_weights
 	weightAlignment /= total_weights
 	weightCohesion /= total_weights
+	weightPredator /= total_weights
 	
 	separations = numpy.zeros((n, dimension), dtype=float, order=None)
 	alignments = numpy.zeros((n, dimension), dtype=float, order=None)
 	cohesions = numpy.zeros((n, dimension), dtype=float, order=None)
+	predator = numpy.zeros((n, dimension), dtype=float, order=None)
 	
 	return
 
@@ -391,18 +522,30 @@ def __global__() -> None:
 def __update__(tick: int) -> None:
 	global canvas
 	global scatter
+	global scatterPredators
 	global dimension
+	global width
+	global height
+	global depth
 	global n
+	global nPredators
 	global positions
+	global positionsPredator
 	global velocities
+	global velocitiesPredator
 	global separations
 	global alignments
 	global cohesions
+	global predator
 	global differences
+	global differencesPredator
 	global distances
+	global distancesPredator
 	
 	differences = positions - positions.reshape(n, 1, dimension)
+	differencesPredator = positionsPredator - positions.reshape(n, 1, dimension)
 	distances = numpy.einsum("...i,...i", differences, differences)
+	distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
 	
 	# Separation
 	matrix_separation = (distances < radiusSeparationSquared) * (distances != 0)
@@ -424,6 +567,20 @@ def __update__(tick: int) -> None:
 			axis=1
 		)) / (numpy.ones(n) + numpy.sum(matrix_cohesion, axis=0)).reshape(n, 1)
 	) - positions
+	# Predator
+	matrix_predator = (distancesPredator < radiusPredatorSquared)
+	predator = numpy.nan_to_num(
+		numpy.sum(
+			differencesPredator * numpy.repeat(matrix_predator.reshape(n, nPredators, 1), dimension, axis=2), 
+			axis=1
+		) * -1
+	)
+	
+	# Others
+	# Predators
+	differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
+	distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
+	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator)
 	
 	# ------------------------------------------------------------------------------------------------------------------------
 	'''position = None
@@ -485,10 +642,23 @@ def __update__(tick: int) -> None:
 	cohesions = numpy.nan_to_num(
 		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(1, n).T)
 	)
+	predator = numpy.nan_to_num(
+		predator / numpy.sqrt(numpy.einsum("...i,...i", predator, predator).reshape(1, n).T)
+	)
+	# Normalise Others
+	predators = numpy.nan_to_num(
+		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(1, nPredators).T)
+	)
 	
 	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
+	target = \
+		(
+			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions) \
+			+ (weightPredator * predator)
+		)
 	
 	velocities += target + numpy.random.randn(n, dimension)
+	velocitiesPredator += predators  # + numpy.random.randn(n, dimension)
 	
 	boundaries = positions + (dT * velocities)
 	out_of_bounds = numpy.array(
@@ -512,20 +682,26 @@ def __update__(tick: int) -> None:
 		positions += out_of_bounds * (positions * -2)
 	
 	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
+	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeed, maximumSpeed)
 	
 	positions += dT * velocities
+	positionsPredator += dT * velocitiesPredator
 	
 	velocities *= 0.9
+	velocitiesPredator *= 0.9
 	
 	if graph:
 		matplotlib.pyplot.title("Tick %d" % tick)
 		if graph_type == 1:
 			if dimension == 1:
 				scatter.set_offsets(numpy.insert(positions, [1], [0], axis=1))
+				scatterPredators.set_offsets(numpy.insert(positionsPredator, [1], [0], axis=1))
 			if dimension == 2:
 				scatter.set_offsets(positions)
+				scatterPredators.set_offsets(positionsPredator)
 			if dimension == 3:
 				scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
+				scatterPredators._offsets3d = (positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2])
 		elif graph_type == 2:
 			if dimension == 1:
 				scatter = matplotlib.pyplot.scatter(

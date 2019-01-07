@@ -13,6 +13,8 @@
 		"cohesion": 1.0,
 		"prey": 1.0,
 		"predator": 1.0
+		"predator": 1.0, 
+		"prey": 1.0
 	},
 	"maximumSpeed": 54.934993590917414392968320820363
 }
