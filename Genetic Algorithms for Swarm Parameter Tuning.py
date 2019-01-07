@@ -744,17 +744,17 @@ def __update__(tick: int) -> None:
 	out_of_bounds = numpy.array(
 		(boundaries[:, 0] < -width) + (boundaries[:, 0] > width),
 		dtype=float, copy=False, order=None, subok=False, ndmin=0
-	).reshape(1, n).T
+	).reshape(n, 1)
 	if dimension > 1:
 		out_of_bounds += numpy.array(
 			(boundaries[:, 1] > height) + (boundaries[:, 1] < -height),
 			dtype=float, copy=False, order=None, subok=False, ndmin=0
-		).reshape(1, n).T
+		).reshape(n, 1)
 		if dimension > 2:
 			out_of_bounds += numpy.array(
 				(boundaries[:, 2] > depth) + (boundaries[:, 2] > depth),
 				dtype=float, copy=False, order=None, subok=False, ndmin=0
-			).reshape(1, n).T
+			).reshape(n, 1)
 	if boundary_type == 1:
 		velocities += out_of_bounds * (velocities * -2)
 	elif boundary_type == 2:
