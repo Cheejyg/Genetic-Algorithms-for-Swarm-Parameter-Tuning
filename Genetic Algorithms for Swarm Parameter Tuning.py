@@ -421,12 +421,12 @@ def __global__() -> None:
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f, \n"
+			"\t\t\t\"predator\": %f, \n"
 			"\t\t}, \n"
 			"\t\t\"weights\": {\n"
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f, \n"
-			"\t\t\t\"predator\": %f\n"
 			"\t\t}, \n"
 			"\t\t\"maximumSpeed\": %f\n"
 			"\t}" % (
