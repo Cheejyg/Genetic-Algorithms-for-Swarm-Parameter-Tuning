@@ -273,7 +273,8 @@ def __global__() -> None:
 		weightPrey = inputs["weights"]["prey"]
 		maximumSpeed = inputs["maximumSpeed"]
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
-		print("EXCEPTION: %s" % (str(e)))
+		if verbosity > 0:
+			print("EXCEPTION: %s" % (str(e)))
 		
 		boidSize = random.random() * 10
 		radius_separation = random.random() + 1
@@ -339,7 +340,8 @@ def __global__() -> None:
 			or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != dimension:
 				raise IndexError
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
-		print("EXCEPTION: %s" % (str(e)))
+		if verbosity > 0:
+			print("EXCEPTION: %s" % (str(e)))
 		
 		dimension = random.randint(1, 3) \
 			if dimension is None else dimension
@@ -387,16 +389,17 @@ def __global__() -> None:
 		)
 	
 	# OVERRIDE
-	verbosity = 1
 	dimension = 2
 	n = 400
 	nPredators = 4
 	nPreys = 4
 	ticks = 1000
+	# verbosity = 1
 	if positions.shape[0] != n or positions.shape[1] != dimension \
 		or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension \
 		or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != nPreys:
-			print("OVERRIDE")
+			if verbosity > 0:
+				print("OVERRIDE")
 			
 			dimension = random.randint(1, 3) \
 				if dimension is None else dimension
