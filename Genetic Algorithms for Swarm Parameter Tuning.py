@@ -484,7 +484,7 @@ def __update__(tick: int) -> None:
 	
 	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
 	
-	velocities += target
+	velocities += target + numpy.random.randn(n, dimension)
 	
 	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
 	
