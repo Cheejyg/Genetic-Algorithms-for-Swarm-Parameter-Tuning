@@ -274,9 +274,6 @@ def __global__() -> None:
 			scene = json.load(scene_file)
 		
 		ticks = scene["ticks"]
-		positions = numpy.array(scene["boids"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
-		rotations = numpy.array(scene["boids"]["rotations"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
-		velocities = numpy.array(scene["boids"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0)
 		positions = numpy.array(
 			scene["boids"]["positions"], dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
@@ -303,8 +300,6 @@ def __global__() -> None:
 		if dimension > 2:
 			depth = scene["window"]["depth"]
 		
-		if positions.shape[0] != n or positions.shape[1] != dimension:
-			raise IndexError
 		if positions.shape[0] != n or positions.shape[1] != dimension \
 			or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension:
 				raise IndexError
@@ -354,37 +349,6 @@ def __global__() -> None:
 	n = 400
 	nPredators = 4
 	ticks = 1000
-	if positions.shape[0] != n or positions.shape[1] != dimension:
-		print("OVERRIDE")
-		
-		dimension = random.randint(1, 3) \
-			if dimension is None else dimension
-		width = random.randint(10, 300) \
-			if width is None else width
-		height = random.randint(10, 300) \
-			if height is None else height
-		if dimension > 2 and depth is None:
-			depth = random.randint(10, 300)  # if depth is None else depth
-		ticks = random.randint(1, 1024) \
-			if ticks is None else ticks
-		n = random.randint(2, 2048) \
-			if n is None else n
-		positions = (min(width, height) / (40 / 9)) * numpy.random.randn(n, dimension) \
-			if positions is None or positions.shape[0] != n or positions.shape[1] != dimension else positions
-		rotations = numpy.random.rand(n, dimension) \
-			if rotations is None or rotations.shape[0] != n or rotations.shape[1] != dimension else rotations
-		velocities = numpy.random.randn(n, dimension) \
-			if velocities is None or velocities.shape[0] != n or velocities.shape[1] != dimension else velocities
-		
-		positions[0] = numpy.array(
-			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
-		)
-		rotations[0] = numpy.array(
-			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
-		)
-		velocities[0] = numpy.array(
-			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
-		)
 	if positions.shape[0] != n or positions.shape[1] != dimension \
 		or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension:
 			print("OVERRIDE")
@@ -497,7 +461,6 @@ def __global__() -> None:
 			}
 	
 	# Normalise
-	total_weights = weightSeparation + weightAlignment + weightCohesion
 	total_weights = \
 		weightSeparation + weightAlignment + weightCohesion \
 		+ weightPredator
@@ -515,7 +478,6 @@ def __global__() -> None:
 
 
 def __update__(tick: int) -> None:
-	global canvas
 	global scatter
 	global scatterPredators
 	global dimension
@@ -645,7 +607,6 @@ def __update__(tick: int) -> None:
 		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(1, nPredators).T)
 	)
 	
-	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
 	target = \
 		(
 			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions) \
@@ -673,7 +634,6 @@ def __update__(tick: int) -> None:
 	if boundary_type == 1:
 		velocities += out_of_bounds * (velocities * -2)
 	elif boundary_type == 2:
-		positions += out_of_bounds *(positions * -2)
 		positions += out_of_bounds * (positions * -2)
 	
 	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
