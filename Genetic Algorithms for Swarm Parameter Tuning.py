@@ -509,6 +509,7 @@ def __update__(tick: int) -> None:
 		velocities += out_of_bounds * (velocities * -2)
 	elif boundary_type == 2:
 		positions += out_of_bounds *(positions * -2)
+		positions += out_of_bounds * (positions * -2)
 	
 	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
 	
