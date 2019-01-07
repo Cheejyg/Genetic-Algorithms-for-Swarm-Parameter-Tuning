@@ -113,8 +113,11 @@ def __main__() -> None:
 			if dimension == 3:
 				ax = canvas.add_subplot(111, projection="3d")
 				ax.set_xlabel("x")
+				ax.set_xlim(-width, width)
 				ax.set_ylabel("y")
+				ax.set_ylim(-height, height)
 				ax.set_zlabel("z")
+				ax.set_zlim(-depth, depth)
 				
 				scatter = ax.scatter(
 					positions[:, 0], positions[:, 1], positions[:, 2], s=8, c="Blue", marker="o"
