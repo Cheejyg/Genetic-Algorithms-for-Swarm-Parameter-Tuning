@@ -437,7 +437,6 @@ def __global__() -> None:
 		print("{")
 		print(
 			"\t\"n\": %d, "
-			"\"ticks\": %d, " % (n, ticks)
 			"\"nPredators\": %d, "
 			"\"ticks\": %d, " % (n, nPredators, ticks)
 		)
@@ -462,19 +461,15 @@ def __global__() -> None:
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f \n"
-			"\t\t\t\"cohesion\": %f, \n"
 			"\t\t\t\"predator\": %f\n"
 			"\t\t}, \n"
 			"\t\t\"weights\": {\n"
 			"\t\t\t\"separation\": %f, \n"
 			"\t\t\t\"alignment\": %f, \n"
-			"\t\t\t\"cohesion\": %f \n"
 			"\t\t\t\"cohesion\": %f, \n"
 			"\t\t\t\"predator\": %f\n"
 			"\t\t}\n"
 			"\t}" % (
-				radius_separation, radius_alignment, radius_cohesion, 
-				weightSeparation, weightAlignment, weightCohesion
 				radius_separation, radius_alignment, radius_cohesion, radius_predator, 
 				weightSeparation, weightAlignment, weightCohesion, weightPredator
 			)

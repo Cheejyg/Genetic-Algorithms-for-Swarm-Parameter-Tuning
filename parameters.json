@@ -11,8 +11,6 @@
 		"separation": 1.0,
 		"alignment": 1.0,
 		"cohesion": 1.0,
-		"prey": 1.0,
-		"predator": 1.0
 		"predator": 1.0, 
 		"prey": 1.0
 	},
