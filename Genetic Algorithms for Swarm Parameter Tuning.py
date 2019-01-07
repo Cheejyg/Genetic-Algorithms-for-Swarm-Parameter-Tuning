@@ -491,21 +491,20 @@ def __update__(tick: int) -> None:
 	velocities += target + numpy.random.randn(n, dimension)
 	
 	boundaries = positions + (dT * velocities)
-	if dimension == 1:
-		out_of_bounds = (
-			(boundaries[:, 0] < -width)
-			+ (boundaries[:, 0] > width)
+	out_of_bounds = numpy.array(
+		(boundaries[:, 0] < -width) + (boundaries[:, 0] > width),
+		dtype=float, copy=False, order=None, subok=False, ndmin=0
+	).reshape(1, n).T
+	if dimension > 1:
+		out_of_bounds += numpy.array(
+			(boundaries[:, 1] > height) + (boundaries[:, 1] < -height),
+			dtype=float, copy=False, order=None, subok=False, ndmin=0
 		).reshape(1, n).T
-	elif dimension == 2:
-		out_of_bounds = (
-			(boundaries[:, 0] < -width) + (boundaries[:, 1] > height)
-			+ (boundaries[:, 0] > width) + (boundaries[:, 1] < -height)
-		).reshape(1, n).T
-	elif dimension == 3:
-		out_of_bounds = (
-			(boundaries[:, 0] < -width) + (boundaries[:, 1] > height) + (boundaries[:, 2] > depth)
-			+ (boundaries[:, 0] > width) + (boundaries[:, 1] < -height) + (boundaries[:, 2] > depth)
-		).reshape(1, n).T
+		if dimension > 2:
+			out_of_bounds += numpy.array(
+				(boundaries[:, 2] > depth) + (boundaries[:, 2] > depth),
+				dtype=float, copy=False, order=None, subok=False, ndmin=0
+			).reshape(1, n).T
 	if boundary_type == 1:
 		velocities += out_of_bounds * (velocities * -2)
 	elif boundary_type == 2:
