@@ -709,26 +709,26 @@ def __update__(tick: int) -> None:
 	
 	# Normalise
 	separations = numpy.nan_to_num(
-		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(1, n).T)
+		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(n ,1))
 	)
 	alignments = numpy.nan_to_num(
-		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(1, n).T)
+		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(n, 1))
 	)
 	cohesions = numpy.nan_to_num(
-		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(1, n).T)
+		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(n, 1))
 	)
 	predator = numpy.nan_to_num(
-		predator / numpy.sqrt(numpy.einsum("...i,...i", predator, predator).reshape(1, n).T)
+		predator / numpy.sqrt(numpy.einsum("...i,...i", predator, predator).reshape(n, 1))
 	)
 	prey = numpy.nan_to_num(
-		prey / numpy.sqrt(numpy.einsum("...i,...i", prey, prey).reshape(1, n).T)
+		prey / numpy.sqrt(numpy.einsum("...i,...i", prey, prey).reshape(n, 1))
 	)
 	# Normalise Others
 	predators = numpy.nan_to_num(
-		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(1, nPredators).T)
+		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(nPredators, 1))
 	)
 	'''preys = numpy.nan_to_num(
-		preys / numpy.sqrt(numpy.einsum("...i,...i", preys, preys).reshape(1, nPreys).T)
+		preys / numpy.sqrt(numpy.einsum("...i,...i", preys, preys).reshape(nPreys, 1))
 	)'''
 	
 	target = \
