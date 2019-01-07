@@ -65,7 +65,7 @@ height = None
 depth = None
 ticks = None
 n = None
-positons = None
+positions = None
 rotations = None
 velocities = None
 
