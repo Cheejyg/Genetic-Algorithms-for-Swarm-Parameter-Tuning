@@ -611,7 +611,7 @@ def __update__(tick: int) -> None:
 		(
 			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions) \
 			+ (weightPredator * predator)
-		) * maximumSpeed
+		)
 	
 	velocities += target + numpy.random.randn(n, dimension)
 	velocitiesPredator += predators  # + numpy.random.randn(n, dimension)
