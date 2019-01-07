@@ -34,6 +34,7 @@ import time
 random.seed(24)
 numpy.random.seed(24)
 dT = 0.1
+boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
 graph = True
 graph_type = 1  # [1 = Normal (Standard), 2 = History (Path)]
 measure = False
@@ -488,6 +489,27 @@ def __update__(tick: int) -> None:
 	target = (weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
 	
 	velocities += target + numpy.random.randn(n, dimension)
+	
+	boundaries = positions + (dT * velocities)
+	if dimension == 1:
+		out_of_bounds = (
+			(boundaries[:, 0] < -width)
+			+ (boundaries[:, 0] > width)
+		).reshape(1, n).T
+	elif dimension == 2:
+		out_of_bounds = (
+			(boundaries[:, 0] < -width) + (boundaries[:, 1] > height)
+			+ (boundaries[:, 0] > width) + (boundaries[:, 1] < -height)
+		).reshape(1, n).T
+	elif dimension == 3:
+		out_of_bounds = (
+			(boundaries[:, 0] < -width) + (boundaries[:, 1] > height) + (boundaries[:, 2] > depth)
+			+ (boundaries[:, 0] > width) + (boundaries[:, 1] < -height) + (boundaries[:, 2] > depth)
+		).reshape(1, n).T
+	if boundary_type == 1:
+		velocities += out_of_bounds * (velocities * -2)
+	elif boundary_type == 2:
+		positions += out_of_bounds *(positions * -2)
 	
 	velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
 	
