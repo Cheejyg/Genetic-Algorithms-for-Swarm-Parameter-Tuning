@@ -541,14 +541,14 @@ def __global__() -> None:
 			}
 	
 	# Normalise
-	total_weights = \
+	'''total_weights = \
 		weightSeparation + weightAlignment + weightCohesion \
 		+ weightPredator + weightPrey
 	weightSeparation /= total_weights
 	weightAlignment /= total_weights
 	weightCohesion /= total_weights
 	weightPredator /= total_weights
-	weightPrey /= total_weights
+	weightPrey /= total_weights'''
 	
 	separations = numpy.zeros((n, dimension), dtype=float, order=None)
 	alignments = numpy.zeros((n, dimension), dtype=float, order=None)
