@@ -63,6 +63,7 @@ weightAlignment = None
 weightCohesion = None
 weightPredator = None
 weightPrey = None
+maximumSpeed = None
 maximumSpeedSquared = None
 
 dimension = None
@@ -232,6 +233,7 @@ def __global__() -> None:
 	global weightCohesion
 	global weightPredator
 	global weightPrey
+	global maximumSpeed
 	global maximumSpeedSquared
 	global dimension
 	global width
@@ -271,7 +273,7 @@ def __global__() -> None:
 		weightCohesion = inputs["weights"]["cohesion"]
 		weightPredator = inputs["weights"]["predator"]
 		weightPrey = inputs["weights"]["prey"]
-		maximum_speed = inputs["maximumSpeed"]
+		maximumSpeed = inputs["maximumSpeed"]
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		if verbosity > 0:
 			print("EXCEPTION: %s" % (str(e)))
@@ -287,13 +289,13 @@ def __global__() -> None:
 		weightCohesion = random.random()
 		weightPredator = random.random()
 		weightPrey = random.random()
-		maximum_speed = random.random() * 100
+		maximumSpeed = random.random() * 100
 	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
 	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
 	radiusCohesionSquared = (radius_cohesion + (radius_cohesion * boidSize) + boidSize) ** 2
 	radiusPredatorSquared = (radius_predator + (radius_predator * boidSize) + boidSize) ** 2
 	radiusPreySquared = (radius_prey + (radius_prey * boidSize) + boidSize) ** 2
-	maximumSpeedSquared = maximum_speed ** 2
+	maximumSpeedSquared = maximumSpeed ** 2
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -510,7 +512,7 @@ def __global__() -> None:
 				boidSize, 
 				radius_separation, radius_alignment, radius_cohesion, radius_predator, radius_prey, 
 				weightSeparation, weightAlignment, weightCohesion, weightPredator, weightPrey, 
-				maximum_speed
+				maximumSpeed
 			)
 		)
 		print("}")
@@ -710,7 +712,7 @@ def __update__(tick: int) -> None:
 	
 	# Normalise
 	separations = numpy.nan_to_num(
-		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(n ,1))
+		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(n, 1))
 	)
 	alignments = numpy.nan_to_num(
 		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(n, 1))
@@ -763,6 +765,28 @@ def __update__(tick: int) -> None:
 	
 	'''velocities = numpy.clip(velocities, -maximumSpeedSquared, maximumSpeedSquared)
 	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeedSquared, maximumSpeedSquared)'''
+	velocities = (
+		velocities * (numpy.einsum("...i,...i", velocities, velocities).reshape(n, 1) < maximumSpeedSquared) 
+		+ numpy.nan_to_num(
+			velocities / numpy.sqrt(numpy.einsum("...i,...i", velocities, velocities).reshape(n, 1))
+		) * (numpy.einsum("...i,...i", velocities, velocities).reshape(n, 1) > maximumSpeedSquared) 
+		* maximumSpeed
+	)
+	velocitiesPredator = (
+		velocitiesPredator 
+		* (
+			numpy.einsum("...i,...i", velocitiesPredator, velocitiesPredator).reshape(nPredators, 1) 
+			< maximumSpeedSquared
+		) 
+		+ numpy.nan_to_num(
+			velocitiesPredator 
+			/ numpy.sqrt(numpy.einsum("...i,...i", velocitiesPredator, velocitiesPredator).reshape(nPredators, 1))
+		) * (
+			numpy.einsum("...i,...i", velocitiesPredator, velocitiesPredator).reshape(nPredators, 1) 
+			> maximumSpeedSquared
+		) 
+		* maximumSpeed
+	)
 	
 	positions += dT * velocities
 	positionsPredator += dT * velocitiesPredator
