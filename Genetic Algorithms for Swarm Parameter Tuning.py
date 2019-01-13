@@ -63,7 +63,7 @@ weightAlignment = None
 weightCohesion = None
 weightPredator = None
 weightPrey = None
-maximumSpeed = None
+maximumSpeedSquared = None
 
 dimension = None
 width = None
@@ -232,7 +232,7 @@ def __global__() -> None:
 	global weightCohesion
 	global weightPredator
 	global weightPrey
-	global maximumSpeed
+	global maximumSpeedSquared
 	global dimension
 	global width
 	global height
@@ -271,7 +271,7 @@ def __global__() -> None:
 		weightCohesion = inputs["weights"]["cohesion"]
 		weightPredator = inputs["weights"]["predator"]
 		weightPrey = inputs["weights"]["prey"]
-		maximumSpeed = inputs["maximumSpeed"]
+		maximum_speed = inputs["maximumSpeed"]
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		if verbosity > 0:
 			print("EXCEPTION: %s" % (str(e)))
@@ -287,12 +287,13 @@ def __global__() -> None:
 		weightCohesion = random.random()
 		weightPredator = random.random()
 		weightPrey = random.random()
-		maximumSpeed = random.random() * 100
+		maximum_speed = random.random() * 100
 	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
 	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
 	radiusCohesionSquared = (radius_cohesion + (radius_cohesion * boidSize) + boidSize) ** 2
 	radiusPredatorSquared = (radius_predator + (radius_predator * boidSize) + boidSize) ** 2
 	radiusPreySquared = (radius_prey + (radius_prey * boidSize) + boidSize) ** 2
+	maximumSpeedSquared = maximum_speed ** 2
 	
 	try:
 		with open(sceneFilename, "rt") as scene_file:
@@ -509,7 +510,7 @@ def __global__() -> None:
 				boidSize, 
 				radius_separation, radius_alignment, radius_cohesion, radius_predator, radius_prey, 
 				weightSeparation, weightAlignment, weightCohesion, weightPredator, weightPrey, 
-				maximumSpeed
+				maximum_speed
 			)
 		)
 		print("}")
@@ -760,8 +761,8 @@ def __update__(tick: int) -> None:
 	elif boundary_type == 2:
 		positions += out_of_bounds * (positions * -2)
 	
-	'''velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
-	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeed, maximumSpeed)'''
+	'''velocities = numpy.clip(velocities, -maximumSpeedSquared, maximumSpeedSquared)
+	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeedSquared, maximumSpeedSquared)'''
 	
 	positions += dT * velocities
 	positionsPredator += dT * velocitiesPredator
