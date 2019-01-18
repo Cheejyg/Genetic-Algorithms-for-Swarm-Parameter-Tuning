@@ -642,7 +642,7 @@ def __update__(tick: int) -> None:
 	# Preys
 	if tick % 200 == 0:
 		if dimension == 1:
-			positionsPrey = numpy.insert(numpy.random.uniform(-width, width, (nPreys, 1)), [1], [0], axis=1)
+			positionsPrey = numpy.random.uniform(-width, width, (nPreys, 1))
 		if dimension == 2:
 			positionsPrey = numpy.concatenate(
 				(
