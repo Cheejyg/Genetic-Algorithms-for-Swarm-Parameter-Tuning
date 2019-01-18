@@ -773,7 +773,7 @@ def __update__(tick: int) -> None:
 	'''velocities = numpy.clip(velocities, -maximumSpeedSquared, maximumSpeedSquared)
 	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeedSquared, maximumSpeedSquared)'''
 	velocities_squared = numpy.einsum("...i,...i", velocities, velocities).reshape(n, 1)
-	velocities_pedator_squared = numpy.einsum("...i,...i", velocitiesPredator, velocitiesPredator).reshape(nPredators, 1)
+	velocities_predator_squared = numpy.einsum("...i,...i", velocitiesPredator, velocitiesPredator).reshape(nPredators, 1)
 	velocities = (
 		velocities * (velocities_squared < maximumSpeedSquared) 
 		+ numpy.nan_to_num(
@@ -782,10 +782,10 @@ def __update__(tick: int) -> None:
 		* maximumSpeed
 	)
 	velocitiesPredator = (
-		velocitiesPredator * (velocities_pedator_squared < maximumSpeedSquared) 
+		velocitiesPredator * (velocities_predator_squared < maximumSpeedSquared) 
 		+ numpy.nan_to_num(
-			velocitiesPredator / numpy.sqrt(velocities_pedator_squared)
-		) * (velocities_pedator_squared > maximumSpeedSquared) 
+			velocitiesPredator / numpy.sqrt(velocities_predator_squared)
+		) * (velocities_predator_squared > maximumSpeedSquared) 
 		* maximumSpeed
 	)
 	
