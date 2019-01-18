@@ -36,8 +36,8 @@ numpy.random.seed(24)
 dT = 0.1
 boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
 graph = True
-graph_type = 1  # [1 = Normal (Standard), 2 = History (Path)]
-measure = False
+graph_type = 1 if graph else None  # [1 = Normal (Standard), 2 = History (Path)]
+measure = True
 
 inputFilename = None
 sceneFilename = None
@@ -102,6 +102,8 @@ differencesPrey = None
 distances = None
 distancesPredator = None
 distancesPrey = None
+
+measurement = [] if measure else None
 
 
 def __main__() -> None:
@@ -554,6 +556,9 @@ def __global__() -> None:
 				"rotations": str(rotationsPrey).replace('\n', ""), 
 				"velocities": str(velocitiesPrey).replace('\n', "")
 			}
+			output["measurementFitness"] = []
+			output["measurement"] = []
+			output["fitness"] = []
 	
 	# Normalise
 	'''total_weights = \
@@ -854,6 +859,72 @@ def __update__(tick: int) -> None:
 				scatterPreys = ax.scatter(
 					positionsPrey[:, 0], positionsPrey[:, 1], positionsPrey[:, 2], s=8, c="Green", marker="^"
 				)
+	
+	if measure:
+		__measure__(tick)
+	
+	return
+
+
+def __measure__(tick: int) -> None:
+	global output
+	global ticks
+	global n
+	global nPredators
+	global nPreys
+	global velocities
+	'''global velocitiesPredator
+	global velocitiesPrey'''
+	global matrixSeparations
+	global matrixAlignments
+	global matrixCohesions
+	global matrixPredators
+	global matrixPreys
+	global distances
+	global distancesPredator
+	global distancesPrey
+	global measurement
+	
+	measurement_velocities = numpy.sum(numpy.einsum("...i,...i", velocities, velocities)) / n  # velocities_squared
+	measurement_predators = numpy.nan_to_num(1 / (numpy.sum(matrixPredators) / (n * nPredators)))
+	measurement_preys = numpy.nan_to_num(numpy.sum(matrixPreys) / (n * nPreys))
+	measurement_distances = 1 / (numpy.sum(distances) / (n * n))
+	measurement_distances_predator = numpy.nan_to_num(numpy.sum(distancesPredator) / (nPredators * n))
+	measurement_distances_prey = numpy.nan_to_num(1 / (numpy.sum(distancesPrey) / (nPreys * n)))
+	
+	measurement.append([
+		measurement_velocities, 
+		measurement_predators, 
+		measurement_preys, 
+		measurement_distances, 
+		measurement_distances_predator, 
+		measurement_distances_prey
+	])
+	
+	if tick == ticks - 1:
+		output["measurementFitness"] = [
+			"velocities", 
+			"predators", 
+			"preys", 
+			"distances", 
+			"distancesPredator", 
+			"distancesPrey"
+		]
+		
+		output["measurement"] = measurement
+		
+		measurement = numpy.array(
+			measurement, dtype=float, copy=False, order=None, subok=False, ndmin=0
+		)
+		
+		output["fitness"] = [
+			numpy.nan_to_num(numpy.mean(measurement[:, 0])), 
+			numpy.nan_to_num(numpy.mean(measurement[:, 1])), 
+			numpy.nan_to_num(numpy.mean(measurement[:, 2])), 
+			numpy.nan_to_num(numpy.mean(measurement[:, 3])), 
+			numpy.nan_to_num(numpy.mean(measurement[:, 4])), 
+			numpy.nan_to_num(numpy.mean(measurement[:, 5]))
+		]
 	
 	return
 
