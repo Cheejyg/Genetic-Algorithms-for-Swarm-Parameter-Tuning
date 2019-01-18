@@ -125,6 +125,12 @@ def __main__() -> None:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, c="Blue", marker="o"
 				)
+				scatterPredators = matplotlib.pyplot.scatter(
+					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), s=8, c="Red", marker="s"
+				)
+				scatterPreys = matplotlib.pyplot.scatter(
+					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), s=8, c="Green", marker="^"
+				)
 			if dimension == 2:
 				matplotlib.pyplot.xlabel("x")
 				matplotlib.pyplot.xlim(-width, width)
@@ -815,13 +821,31 @@ def __update__(tick: int) -> None:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
 				)
+				scatterPredators = matplotlib.pyplot.scatter(
+					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), s=8, c="Red", marker="s"
+				)
+				scatterPreys = matplotlib.pyplot.scatter(
+					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), s=8, c="Green", marker="^"
+				)
 			if dimension == 2:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], positions[:, 1], s=8, marker="o"
 				)
+				scatterPredators = matplotlib.pyplot.scatter(
+					positionsPredator[:, 0], positionsPredator[:, 1], s=8, c="Red", marker="s"
+				)
+				scatterPreys = matplotlib.pyplot.scatter(
+					positionsPrey[:, 0], positionsPrey[:, 1], s=8, c="Green", marker="^"
+				)
 			if dimension == 3:
 				scatter = ax.scatter(
 					positions[:, 0], positions[:, 1], positions[:, 2], s=8, marker="o"
+				)
+				scatterPredators = ax.scatter(
+					positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2], s=8, c="Red", marker="o"
+				)
+				scatterPreys = ax.scatter(
+					positionsPrey[:, 0], positionsPrey[:, 1], positionsPrey[:, 2], s=8, c="Green", marker="^"
 				)
 	
 	return
