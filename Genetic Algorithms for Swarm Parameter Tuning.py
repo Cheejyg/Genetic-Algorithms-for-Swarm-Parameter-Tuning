@@ -29,7 +29,7 @@ import random
 # import scipy
 # import sys
 # import tensorflow
-import time
+# import time
 
 random.seed(24)
 numpy.random.seed(24)
@@ -928,6 +928,101 @@ def __measure__(tick: int) -> None:
 		]
 	
 	return
+
+
+def __run__(parameters: dict, scene_file: str) -> (str, [float]):
+	global dT
+	global boundary_type
+	global graph
+	global measure
+	global sceneFilename
+	global outputFilename
+	global verbosity
+	global outputFile
+	global output
+	global boidSize
+	global radiusSeparationSquared
+	global radiusAlignmentSquared
+	global radiusCohesionSquared
+	global radiusPredatorSquared
+	global radiusPreySquared
+	global weightSeparation
+	global weightAlignment
+	global weightCohesion
+	global weightPredator
+	global weightPrey
+	global maximumSpeed
+	global maximumSpeedSquared
+	global dimension
+	global width
+	global height
+	global depth
+	global ticks
+	global n
+	global nPredators
+	global nPreys
+	global positions
+	global positionsPredator
+	global positionsPrey
+	global rotations
+	global rotationsPredator
+	global rotationsPrey
+	global velocities
+	global velocitiesPredator
+	global velocitiesPrey
+	global separations
+	global alignments
+	global cohesions
+	global predator
+	global prey
+	
+	random.seed(24)
+	numpy.random.seed(24)
+	dT = 0.1
+	boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
+	graph = False
+	measure = True
+	
+	# inputFilename
+	sceneFilename = scene_file
+	# outputFilename = output_file
+	verbosity = 0
+	
+	__global__()
+	
+	boidSize = parameters["boidSize"]
+	radius_separation = parameters["radii"]["separation"]
+	radius_alignment = parameters["radii"]["alignment"]
+	radius_cohesion = parameters["radii"]["cohesion"]
+	radius_predator = parameters["radii"]["predator"]
+	radius_prey = parameters["radii"]["prey"]
+	weightSeparation = parameters["weights"]["separation"]
+	weightAlignment = parameters["weights"]["alignment"]
+	weightCohesion = parameters["weights"]["cohesion"]
+	weightPredator = parameters["weights"]["predator"]
+	weightPrey = parameters["weights"]["prey"]
+	maximumSpeed = parameters["maximumSpeed"]
+	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
+	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
+	radiusCohesionSquared = (radius_cohesion + (radius_cohesion * boidSize) + boidSize) ** 2
+	radiusPredatorSquared = (radius_predator + (radius_predator * boidSize) + boidSize) ** 2
+	radiusPreySquared = (radius_prey + (radius_prey * boidSize) + boidSize) ** 2
+	maximumSpeedSquared = maximumSpeed ** 2
+	
+	for tick in range(ticks):
+		__update__(tick)
+	
+	return (
+		(
+			"velocities", 
+			"predators", 
+			"preys", 
+			"distances", 
+			"distancesPredator", 
+			"distancesPrey"
+		), 
+		output["fitness"]
+	)
 
 
 if __name__ == "__main__":
