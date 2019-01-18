@@ -913,17 +913,17 @@ def __measure__(tick: int) -> None:
 		
 		output["measurement"] = measurement
 		
-		measurement = numpy.array(
+		measurement_array = numpy.array(
 			measurement, dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
 		
 		output["fitness"] = [
-			numpy.nan_to_num(numpy.mean(measurement[:, 0])), 
-			numpy.nan_to_num(numpy.mean(measurement[:, 1])), 
-			numpy.nan_to_num(numpy.mean(measurement[:, 2])), 
-			numpy.nan_to_num(numpy.mean(measurement[:, 3])), 
-			numpy.nan_to_num(numpy.mean(measurement[:, 4])), 
-			numpy.nan_to_num(numpy.mean(measurement[:, 5]))
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 0])), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 1])), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 2])), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 3])), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 4])), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 5]))
 		]
 	
 	return
