@@ -84,6 +84,12 @@ velocities = None
 velocitiesPredator = None
 velocitiesPrey = None
 
+matrixSeparations = None
+matrixAlignments = None
+matrixCohesions = None
+matrixPredators = None
+matrixPreys = None
+
 separations = None
 alignments = None
 cohesions = None
@@ -585,6 +591,11 @@ def __update__(tick: int) -> None:
 	global velocities
 	global velocitiesPredator
 	global velocitiesPrey
+	global matrixSeparations
+	global matrixAlignments
+	global matrixCohesions
+	global matrixPredators
+	global matrixPreys
 	global separations
 	global alignments
 	global cohesions
@@ -605,39 +616,39 @@ def __update__(tick: int) -> None:
 	distancesPrey = numpy.einsum("...i,...i", differencesPrey, differencesPrey)
 	
 	# Separation
-	matrix_separation = (distances < radiusSeparationSquared) * (distances != 0)
+	matrixSeparations = (distances < radiusSeparationSquared) * (distances != 0)
 	separations = numpy.nan_to_num(
-		numpy.sum(differences * matrix_separation.reshape(n, n, 1), axis=1) * -1
+		numpy.sum(differences * matrixSeparations.reshape(n, n, 1), axis=1) * -1
 	)
 	# Alignment
-	matrix_alignment = (distances < radiusAlignmentSquared) * (distances != 0)
+	matrixAlignments = (distances < radiusAlignmentSquared) * (distances != 0)
 	alignments = numpy.nan_to_num(
 		numpy.sum(
-			matrix_alignment.reshape(n, n, 1) * numpy.repeat(velocities.reshape(1, n, dimension), n, axis=0), axis=1
-		) / numpy.sum(matrix_alignment, axis=0).reshape(n, 1)
+			matrixAlignments.reshape(n, n, 1) * numpy.repeat(velocities.reshape(1, n, dimension), n, axis=0), axis=1
+		) / numpy.sum(matrixAlignments, axis=0).reshape(n, 1)
 	)
 	# Cohesion
-	matrix_cohesion = (distances < radiusCohesionSquared) * (distances != 0)
+	matrixCohesions = (distances < radiusCohesionSquared) * (distances != 0)
 	cohesions = numpy.nan_to_num(
 		(positions + numpy.sum(
-			matrix_cohesion.reshape(n, n, 1) * numpy.repeat(positions.reshape(1, n, dimension), n, axis=0), 
+			matrixCohesions.reshape(n, n, 1) * numpy.repeat(positions.reshape(1, n, dimension), n, axis=0), 
 			axis=1
-		)) / (numpy.ones(n) + numpy.sum(matrix_cohesion, axis=0)).reshape(n, 1)
+		)) / (numpy.ones(n) + numpy.sum(matrixCohesions, axis=0)).reshape(n, 1)
 	) - positions
 	# Predator
-	matrix_predator = (distancesPredator < radiusPredatorSquared)
+	matrixPredators = (distancesPredator < radiusPredatorSquared)
 	predator = numpy.nan_to_num(
 		numpy.sum(
-			differencesPredator * numpy.repeat(matrix_predator.reshape(n, nPredators, 1), dimension, axis=2), 
+			differencesPredator * numpy.repeat(matrixPredators.reshape(n, nPredators, 1), dimension, axis=2), 
 			axis=1
 		) * -1
 	)
 	# Prey
 	if nPreys > 0:
-		matrix_prey = (distancesPrey < radiusPreySquared)
+		matrixPreys = (distancesPrey < radiusPreySquared)
 		prey = numpy.nan_to_num(
 			differencesPrey[numpy.arange(n), numpy.argmin(distancesPrey, axis=1)]
-			* (numpy.sum(matrix_prey, axis=1) > 0).reshape(n, 1)
+			* (numpy.sum(matrixPreys, axis=1) > 0).reshape(n, 1)
 		)
 	
 	# Others
