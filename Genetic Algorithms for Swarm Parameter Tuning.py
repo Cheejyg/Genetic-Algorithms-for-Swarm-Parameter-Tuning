@@ -627,11 +627,12 @@ def __update__(tick: int) -> None:
 		) * -1
 	)
 	# Prey
-	matrix_prey = (distancesPrey < radiusPreySquared)
-	prey = numpy.nan_to_num(
-		differencesPrey[numpy.arange(n), numpy.argmin(distancesPrey, axis=1)]
-		* (numpy.sum(matrix_prey, axis=1) > 0).reshape(n, 1)
-	)
+	if nPreys > 0:
+		matrix_prey = (distancesPrey < radiusPreySquared)
+		prey = numpy.nan_to_num(
+			differencesPrey[numpy.arange(n), numpy.argmin(distancesPrey, axis=1)]
+			* (numpy.sum(matrix_prey, axis=1) > 0).reshape(n, 1)
+		)
 	
 	# Others
 	# Predators
