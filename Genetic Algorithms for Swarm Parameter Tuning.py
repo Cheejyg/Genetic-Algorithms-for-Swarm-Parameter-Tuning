@@ -35,8 +35,8 @@ random.seed(24)
 numpy.random.seed(24)
 dT = 0.1
 boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
-graph = True
-graph_type = 1 if graph else None  # [1 = Normal (Standard), 2 = History (Path)]
+animation = True
+animation_type = 1 if animation else None  # [1 = Normal (Standard), 2 = History (Path)]
 measure = True
 
 inputFilename = None
@@ -120,7 +120,7 @@ def __main__() -> None:
 	__argparse__()
 	__global__()
 	
-	if graph:
+	if animation:
 		if 0 < dimension < 4:
 			canvas = matplotlib.pyplot.figure(1)
 			
@@ -173,7 +173,7 @@ def __main__() -> None:
 					positionsPrey[:, 0], positionsPrey[:, 1], positionsPrey[:, 2], s=8, c="Green", marker="^"
 				)
 			
-			animation = matplotlib.animation.FuncAnimation(
+			func_animation = matplotlib.animation.FuncAnimation(
 				fig=canvas, func=__update__, frames=ticks, init_func=__global__, fargs=(), save_count=(1024 % ticks), 
 				interval=1, repeat=False
 			)
@@ -815,9 +815,9 @@ def __update__(tick: int) -> None:
 	velocities *= 0.9
 	velocitiesPredator *= 0.9
 	
-	if graph:
+	if animation:
 		matplotlib.pyplot.title("Tick %d" % tick)
-		if graph_type == 1:
+		if animation_type == 1:
 			if dimension == 1:
 				scatter.set_offsets(numpy.insert(positions, [1], [0], axis=1))
 				scatterPredators.set_offsets(numpy.insert(positionsPredator, [1], [0], axis=1))
@@ -830,7 +830,7 @@ def __update__(tick: int) -> None:
 				scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
 				scatterPredators._offsets3d = (positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2])
 				scatterPreys._offsets3d = (positionsPrey[:, 0], positionsPrey[:, 1], positionsPrey[:, 2])
-		elif graph_type == 2:
+		elif animation_type == 2:
 			if dimension == 1:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
@@ -934,7 +934,7 @@ def __measure__(tick: int) -> None:
 def __run__(parameters: dict, scene_file: str) -> (str, [float]):
 	global dT
 	global boundary_type
-	global graph
+	global animation
 	global measure
 	global sceneFilename
 	global outputFilename
@@ -982,7 +982,7 @@ def __run__(parameters: dict, scene_file: str) -> (str, [float]):
 	numpy.warnings.filterwarnings("ignore")
 	dT = 0.1
 	boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
-	graph = False
+	animation = False
 	measure = True
 	
 	# inputFilename
