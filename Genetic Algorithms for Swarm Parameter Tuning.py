@@ -210,7 +210,7 @@ def __argparse__() -> None:
 		help="json parameters file"
 	)
 	parser.add_argument(
-		"-s", "--scene", type=str, default="scene.json", 
+		"-s", "--scene", type=str, default="scene/scene.json", 
 		help="json scene file"
 	)
 	parser.add_argument(
@@ -978,6 +978,7 @@ def __run__(parameters: dict, scene_file: str) -> (str, [float]):
 	
 	random.seed(24)
 	numpy.random.seed(24)
+	numpy.warnings.filterwarnings("ignore")
 	dT = 0.1
 	boundary_type = 1  # [1 = Bound (Velocity), 2 = Wrap (Position)]
 	graph = False
