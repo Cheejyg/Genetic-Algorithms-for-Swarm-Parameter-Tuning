@@ -5,7 +5,7 @@
 		"depth": null
 	},
 	"dimension": 2,
-	"ticks": 1000,
+	"ticks": 2048,
 	"boids": {
 		"positions": [
 			[0, 0],

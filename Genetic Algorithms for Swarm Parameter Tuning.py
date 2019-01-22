@@ -174,7 +174,7 @@ def __main__() -> None:
 				)
 			
 			animation = matplotlib.animation.FuncAnimation(
-				fig=canvas, func=__update__, frames=ticks, init_func=__global__, fargs=(), save_count=(ticks % 1024), 
+				fig=canvas, func=__update__, frames=ticks, init_func=__global__, fargs=(), save_count=(1024 % ticks), 
 				interval=1, repeat=False
 			)
 			
