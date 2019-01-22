@@ -409,12 +409,12 @@ def __global__() -> None:
 	
 	# OVERRIDE
 	if __name__ == "__main__":
-		verbosity = 2
+		# verbosity = 2
 		dimension = 2
-		n = 400
-		nPredators = 4
-		nPreys = 4
-		ticks = 1000
+		# n = 400
+		# nPredators = 4
+		# nPreys = 4
+		# ticks = 1024
 	if positions.shape[0] != n or positions.shape[1] != dimension \
 		or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension \
 		or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != nPreys:
