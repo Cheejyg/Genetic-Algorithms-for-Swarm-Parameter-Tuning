@@ -659,9 +659,10 @@ def __update__(tick: int) -> None:
 	
 	# Others
 	# Predators
-	differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
+	'''differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
 	distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
-	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator)
+	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator)'''
+	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=0)] - positionsPredator)
 	# Preys
 	if tick % 200 == 0:
 		if dimension == 1:
