@@ -134,10 +134,12 @@ def __main__() -> None:
 					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, c="Blue", marker="o"
 				)
 				scatterPredators = matplotlib.pyplot.scatter(
-					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), s=8, c="Red", marker="s"
+					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), 
+					s=8, c="Red", marker="s"
 				)
 				scatterPreys = matplotlib.pyplot.scatter(
-					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), s=8, c="Green", marker="^"
+					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), 
+					s=8, c="Green", marker="^"
 				)
 			if dimension == 2:
 				matplotlib.pyplot.xlabel("x")
@@ -461,13 +463,16 @@ def __global__() -> None:
 				or velocitiesPrey.shape[1] != dimension else velocitiesPrey
 			
 			positions[0] = numpy.array(
-				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, 
+				ndmin=0
 			)
 			rotations[0] = numpy.array(
-				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, 
+				ndmin=0
 			)
 			velocities[0] = numpy.array(
-				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
+				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, 
+				ndmin=0
 			)
 	
 	if verbosity > 0:
@@ -828,7 +833,9 @@ def __update__(tick: int) -> None:
 				scatterPreys.set_offsets(positionsPrey)
 			if dimension == 3:
 				scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
-				scatterPredators._offsets3d = (positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2])
+				scatterPredators._offsets3d = (
+					positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2]
+				)
 				scatterPreys._offsets3d = (positionsPrey[:, 0], positionsPrey[:, 1], positionsPrey[:, 2])
 		elif animation_type == 2:
 			if dimension == 1:
@@ -836,10 +843,12 @@ def __update__(tick: int) -> None:
 					positions[:, 0], numpy.zeros((n, dimension), dtype=float, order=None), s=8, marker="o"
 				)
 				scatterPredators = matplotlib.pyplot.scatter(
-					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), s=8, c="Red", marker="s"
+					positionsPredator[:, 0], numpy.zeros((nPredators, dimension), dtype=float, order=None), 
+					s=8, c="Red", marker="s"
 				)
 				scatterPreys = matplotlib.pyplot.scatter(
-					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), s=8, c="Green", marker="^"
+					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), 
+					s=8, c="Green", marker="^"
 				)
 			if dimension == 2:
 				scatter = matplotlib.pyplot.scatter(
