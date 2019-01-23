@@ -35,6 +35,7 @@ GeneticAlgorithmsForSwarmParameterTuning = __import__("Genetic Algorithms for Sw
 
 random.seed(24)
 numpy.random.seed(24)
+limit = 100
 crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
 n = 24
@@ -66,7 +67,7 @@ def __initialise__() -> None:
 	global populationFitness
 	global specialisation
 	
-	population = numpy.random.rand(n, properties) * 100
+	population = numpy.random.rand(n, properties) * limit
 	
 	populationFitness = []
 	for x in range(n):
@@ -143,20 +144,20 @@ def mutation(a: list) -> list:
 	if mutation_type == 0:
 		bit = numpy.random.rand(size) < (1 / size)
 		
-		a = ((numpy.random.rand(size) * 100) * (bit > 0) + a * (bit < 1)).tolist()
+		a = ((numpy.random.rand(size) * limit) * (bit > 0) + a * (bit < 1)).tolist()
 	elif mutation_type == 1:
-		a = (numpy.array(100) - a).tolist()
+		a = (numpy.array(limit) - a).tolist()
 	elif mutation_type == 2:
 		boundary = numpy.random.rand()
 		
 		if boundary < (1 / 3):
-			a = numpy.clip(a, random.random() * 100, None).tolist()  # lower bound
+			a = numpy.clip(a, random.random() * limit, None).tolist()  # lower bound
 		elif boundary < (2 / 3):
-			a = numpy.clip(a, None, random.random() * 100).tolist()  # upper bound
+			a = numpy.clip(a, None, random.random() * limit).tolist()  # upper bound
 		else:
-			a = numpy.clip(a, random.random() * 100, random.random() * 100).tolist()  # lower and upper bound
+			a = numpy.clip(a, random.random() * limit, random.random() * limit).tolist()  # lower and upper bound
 	else:
-		a = list((numpy.random.rand(size) * 100).tolist())
+		a = list((numpy.random.rand(size) * limit).tolist())
 	
 	return a
 
