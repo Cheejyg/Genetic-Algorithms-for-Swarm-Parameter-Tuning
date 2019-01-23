@@ -646,14 +646,16 @@ def __update__(tick: int) -> None:
 	# Separation
 	matrixSeparations = (distances < radiusSeparationSquared) * (distances != 0)
 	separations = numpy.nan_to_num(
-		numpy.sum(differences * matrixSeparations.reshape(n, n, 1), axis=1) * -1
+		numpy.sum(differences * matrixSeparations.reshape(n, n, 1), axis=1) * -1, 
+		copy=False
 	)
 	# Alignment
 	matrixAlignments = (distances < radiusAlignmentSquared) * (distances != 0)
 	alignments = numpy.nan_to_num(
 		numpy.sum(
 			matrixAlignments.reshape(n, n, 1) * numpy.repeat(velocities.reshape(1, n, dimension), n, axis=0), axis=1
-		) / numpy.sum(matrixAlignments, axis=0).reshape(n, 1)
+		) / numpy.sum(matrixAlignments, axis=0).reshape(n, 1), 
+		copy=False
 	)
 	# Cohesion
 	matrixCohesions = (distances < radiusCohesionSquared) * (distances != 0)
@@ -661,7 +663,8 @@ def __update__(tick: int) -> None:
 		(positions + numpy.sum(
 			matrixCohesions.reshape(n, n, 1) * numpy.repeat(positions.reshape(1, n, dimension), n, axis=0), 
 			axis=1
-		)) / (numpy.ones(n) + numpy.sum(matrixCohesions, axis=0)).reshape(n, 1)
+		)) / (numpy.ones(n) + numpy.sum(matrixCohesions, axis=0)).reshape(n, 1), 
+		copy=False
 	) - positions
 	# Predator
 	matrixPredators = (distancesPredator < radiusPredatorSquared)
@@ -669,22 +672,24 @@ def __update__(tick: int) -> None:
 		numpy.sum(
 			differencesPredator * numpy.repeat(matrixPredators.reshape(n, nPredators, 1), dimension, axis=2), 
 			axis=1
-		) * -1
+		) * -1, 
+		copy=False
 	)
 	# Prey
 	matrixPreys = (distancesPrey < radiusPreySquared)
 	if nPreys > 0:
 		prey = numpy.nan_to_num(
 			differencesPrey[numpy.arange(n), numpy.argmin(distancesPrey, axis=1)]
-			* (numpy.sum(matrixPreys, axis=1) > 0).reshape(n, 1)
+			* (numpy.sum(matrixPreys, axis=1) > 0).reshape(n, 1), 
+			copy=False
 		)
 	
 	# Others
 	# Predators
 	'''differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
 	distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
-	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator)'''
-	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=0)] - positionsPredator)
+	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator, copy=False)'''
+	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=0)] - positionsPredator, copy=False)
 	# Preys
 	if tick % 200 == 0:
 		if dimension == 1:
@@ -759,26 +764,26 @@ def __update__(tick: int) -> None:
 	
 	# Normalise
 	separations = numpy.nan_to_num(
-		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(n, 1))
+		separations / numpy.sqrt(numpy.einsum("...i,...i", separations, separations).reshape(n, 1)), copy=False
 	)
 	alignments = numpy.nan_to_num(
-		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(n, 1))
+		alignments / numpy.sqrt(numpy.einsum("...i,...i", alignments, alignments).reshape(n, 1)), copy=False
 	)
 	cohesions = numpy.nan_to_num(
-		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(n, 1))
+		cohesions / numpy.sqrt(numpy.einsum("...i,...i", cohesions, cohesions).reshape(n, 1)), copy=False
 	)
 	predator = numpy.nan_to_num(
-		predator / numpy.sqrt(numpy.einsum("...i,...i", predator, predator).reshape(n, 1))
+		predator / numpy.sqrt(numpy.einsum("...i,...i", predator, predator).reshape(n, 1)), copy=False
 	)
 	prey = numpy.nan_to_num(
-		prey / numpy.sqrt(numpy.einsum("...i,...i", prey, prey).reshape(n, 1))
+		prey / numpy.sqrt(numpy.einsum("...i,...i", prey, prey).reshape(n, 1)), copy=False
 	)
 	# Normalise Others
 	predators = numpy.nan_to_num(
-		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(nPredators, 1))
+		predators / numpy.sqrt(numpy.einsum("...i,...i", predators, predators).reshape(nPredators, 1)), copy=False
 	)
 	'''preys = numpy.nan_to_num(
-		preys / numpy.sqrt(numpy.einsum("...i,...i", preys, preys).reshape(nPreys, 1))
+		preys / numpy.sqrt(numpy.einsum("...i,...i", preys, preys).reshape(nPreys, 1)), copy=False
 	)'''
 	
 	target = \
@@ -948,12 +953,12 @@ def __measure__(tick: int) -> None:
 		measurement_array = numpy.array(measurement, dtype=float, copy=False, order=None, subok=False, ndmin=0)
 		
 		output["fitness"] = [
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 0])), 
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 1])), 
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 2])), 
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 3])), 
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 4])), 
-			numpy.nan_to_num(numpy.mean(measurement_array[:, 5]))
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 0]), copy=False), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 1]), copy=False), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 2]), copy=False), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 3]), copy=False), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 4]), copy=False), 
+			numpy.nan_to_num(numpy.mean(measurement_array[:, 5]), copy=False)
 		]
 	
 	return
