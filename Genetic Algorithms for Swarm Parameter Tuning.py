@@ -970,10 +970,10 @@ def __run__(parameters: dict, scene_file: str) -> (str, [float]):
 	global animation
 	global measure
 	global sceneFilename
-	global outputFilename
+	# global outputFilename
 	global verbosity
-	global outputFile
-	global output
+	'''global outputFile
+	global output'''
 	global boidSize
 	global radiusSeparationSquared
 	global radiusAlignmentSquared
@@ -987,28 +987,7 @@ def __run__(parameters: dict, scene_file: str) -> (str, [float]):
 	global weightPrey
 	global maximumSpeed
 	global maximumSpeedSquared
-	global dimension
-	global width
-	global height
-	global depth
 	global ticks
-	global n
-	global nPredators
-	global nPreys
-	global positions
-	global positionsPredator
-	global positionsPrey
-	global rotations
-	global rotationsPredator
-	global rotationsPrey
-	global velocities
-	global velocitiesPredator
-	global velocitiesPrey
-	global separations
-	global alignments
-	global cohesions
-	global predator
-	global prey
 	
 	random.seed(24)
 	numpy.random.seed(24)
