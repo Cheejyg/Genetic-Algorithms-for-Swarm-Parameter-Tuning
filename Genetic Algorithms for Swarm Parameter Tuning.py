@@ -918,7 +918,7 @@ def __measure__(tick: int) -> None:
 	global measurement
 	
 	measurement_velocities = numpy.sum(numpy.einsum("...i,...i", velocities, velocities)) / n  # velocities_squared
-	measurement_predators = numpy.nan_to_num(1 / (numpy.sum(matrixPredators) / (n * nPredators)))
+	measurement_predators = numpy.nan_to_num(1 / ((numpy.sum(matrixPredators) + 1) / (n * nPredators)))
 	measurement_preys = numpy.nan_to_num(numpy.sum(matrixPreys) / (n * nPreys))
 	measurement_distances = 1 / (numpy.sum(distances) / (n * n))
 	measurement_distances_predator = numpy.nan_to_num(numpy.sum(distancesPredator) / (nPredators * n))
