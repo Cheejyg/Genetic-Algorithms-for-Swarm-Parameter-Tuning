@@ -35,39 +35,142 @@ GeneticAlgorithmsForSwarmParameterTuning = __import__("Genetic Algorithms for Sw
 
 random.seed(24)
 numpy.random.seed(24)
+crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
+mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
+n = 24
+properties = 12
+specialisations = 6
+generations = 1000
+
+scenes = None
+
+population = None
+populationFitness = None
+specialisation = None
 
 parameters = None
 
 
 def __main__() -> None:
+	global populationFitness
+	
+	__initialise__()
+	
+	print(str(populationFitness).replace("],", "], \n"))
+	
+	return
+
+
+def __initialise__() -> None:
+	global population
+	global populationFitness
+	global specialisation
+	
+	population = numpy.random.rand(n, properties) * 100
+	
+	population[0][1] = 2
+	population[0][2] = 4
+	population[0][3] = 8
+	population[0][4] = 4
+	population[0][5] = 8
+	population[0][6] = 1
+	population[0][7] = 1
+	population[0][8] = 1
+	population[0][9] = 1
+	population[0][10] = 1
+	population[0][11] = 5.4934993590917414392968320820363
+	
+	populationFitness = []
+	for x in range(n):
+		fitness = __fitness__(population[x], "scene/scene.json")
+		populationFitness.append(fitness[1])
+	
+	specialisation = numpy.random.randint(0, specialisations, n, dtype=int)
+	
+	return
+
+
+def __fitness__(candidate_solution: list, scene_file: str) -> float:
 	global parameters
 	
 	parameters = {
 		"boidSize": 0.10922,
 		"radii": {
-			"separation": 2.0,
-			"alignment": 4.0,
-			"cohesion": 8.0,
-			"predator": 4.0,
-			"prey": 8.0
+			"separation": candidate_solution[1], 
+			"alignment": candidate_solution[2], 
+			"cohesion": candidate_solution[3], 
+			"predator": candidate_solution[4], 
+			"prey": candidate_solution[5]
 		},
 		"weights": {
-			"separation": 1.0,
-			"alignment": 1.0,
-			"cohesion": 1.0,
-			"predator": 1.0, 
-			"predatorBoost": 2.0,
-			"prey": 1.0,
+			"separation": candidate_solution[6], 
+			"alignment": candidate_solution[7], 
+			"cohesion": candidate_solution[8], 
+			"predator": candidate_solution[9], 
+			"predatorBoost": 2.0, 
+			"prey": candidate_solution[10], 
 			"preyBoost": 2.0
 		},
-		"maximumSpeed": 5.4934993590917414392968320820363
+		"maximumSpeed": candidate_solution[11]
 	}
 	
-	fitness = GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, "scene.json")
+	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
+
+
+def crossover(a: list, b: list) -> (list, list):
+	size = min(len(a), len(b))
 	
-	print(fitness)
+	if crossover_type < 1:
+		lhs = numpy.random.randint(1 + 1, size=size) > 0
+		rhs = lhs < 1
+		
+		children = (
+			(a * lhs + b * rhs).tolist(), 
+			(b * lhs + a * rhs).tolist()
+		)
+	elif crossover_type == 1:
+		start_point = random.randint(1, size - 2)
+		
+		children = (
+			numpy.concatenate((a[:start_point], b[start_point:])).tolist(), 
+			numpy.concatenate((b[:start_point], a[start_point:])).tolist()
+		)
+	elif crossover_type == 2:
+		start_point = random.randint(1, size - 3)
+		mid_point = random.randint(start_point + 1, size - 2)
+		
+		children = (
+			numpy.concatenate((a[0:start_point], b[start_point:mid_point], a[mid_point:])).tolist(), 
+			numpy.concatenate((b[0:start_point], a[start_point:mid_point], b[mid_point:])).tolist()
+		)
+	else:
+		return None
 	
-	return
+	return children
+
+
+def mutation(a: list) -> list:
+	size = len(a)
+	
+	if mutation_type == 0:
+		bit = numpy.random.rand(size) < (1 / size)
+		
+		a = ((numpy.random.rand(size) * 100) * (bit > 0) + a * (bit < 1)).tolist()
+	elif mutation_type == 1:
+		a = (numpy.array(100) - a).tolist()
+	elif mutation_type == 2:
+		boundary = numpy.random.rand()
+		
+		if boundary < (1 / 3):
+			a = numpy.clip(a, random.random() * 100, None).tolist()  # lower bound
+		elif boundary < (2 / 3):
+			a = numpy.clip(a, None, random.random() * 100).tolist()  # upper bound
+		else:
+			a = numpy.clip(a, random.random() * 100, random.random() * 100).tolist()  # lower and upper bound
+	else:
+		a = list((numpy.random.rand(size) * 100).tolist())
+	
+	return a
 
 
 if __name__ == "__main__":

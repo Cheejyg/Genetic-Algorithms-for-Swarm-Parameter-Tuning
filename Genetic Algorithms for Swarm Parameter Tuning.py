@@ -823,6 +823,9 @@ def __update__(tick: int) -> None:
 	velocities_predator_squared = numpy.einsum(
 		"...i,...i", velocitiesPredator, velocitiesPredator
 	).reshape(nPredators, 1)
+	'''velocities_prey_squared = numpy.einsum(
+		"...i,...i", velocitiesPrey, velocitiesPrey
+	).reshape(nPreys, 1)'''
 	velocities = (
 		velocities * (velocities_squared < maximumSpeedSquared) 
 		+ numpy.nan_to_num(
