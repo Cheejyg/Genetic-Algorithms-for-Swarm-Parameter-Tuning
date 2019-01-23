@@ -44,7 +44,7 @@ sceneFilename = None
 outputFilename = None
 verbosity = None
 outputFile = None
-output = {}
+output = None
 
 canvas = None
 ax = None
@@ -103,7 +103,7 @@ distances = None
 distancesPredator = None
 distancesPrey = None
 
-measurement = [] if measure else None
+measurement = None
 
 
 def __main__() -> None:
@@ -184,6 +184,19 @@ def __main__() -> None:
 	else:
 		for tick in range(ticks):
 			__update__(tick)
+	
+	print(str((
+		(
+			"velocities"
+			"velocities", 
+			"predators", 
+			"preys", 
+			"distances", 
+			"distancesPredator", 
+			"distancesPrey"
+		), 
+		output["fitness"]
+	)).replace("), [", "), \n["))
 	
 	if verbosity > 0:
 		if verbosity > 1:
@@ -273,6 +286,9 @@ def __global__() -> None:
 	global cohesions
 	global predator
 	global prey
+	global measurement
+	
+	output = {}
 	
 	try:
 		with open(inputFilename, "rt") as input_file:
@@ -566,8 +582,8 @@ def __global__() -> None:
 			output["measurement"] = []
 			output["fitness"] = []
 	
-	# Normalise
-	'''total_weights = \
+	'''# Normalise
+	total_weights = \
 		weightSeparation + weightAlignment + weightCohesion \
 		+ weightPredator + weightPrey
 	weightSeparation /= total_weights
@@ -581,6 +597,8 @@ def __global__() -> None:
 	cohesions = numpy.zeros((n, dimension), dtype=float, order=None)
 	predator = numpy.zeros((n, dimension), dtype=float, order=None)
 	prey = numpy.zeros((n, dimension), dtype=float, order=None)
+	
+	measurement = [] if measure else None
 	
 	return
 
@@ -772,20 +790,21 @@ def __update__(tick: int) -> None:
 	
 	velocities += target + numpy.random.randn(n, dimension)
 	velocitiesPredator += predators  # + numpy.random.randn(n, dimension)
+	# velocitiesPrey += preys + numpy.random.randn(n, dimension)
 	
 	boundaries = positions + (dT * velocities)
 	out_of_bounds = numpy.array(
-		(boundaries[:, 0] < -width) + (boundaries[:, 0] > width),
+		(boundaries[:, 0] < -width) + (boundaries[:, 0] > width), 
 		dtype=float, copy=False, order=None, subok=False, ndmin=0
 	).reshape(n, 1)
 	if dimension > 1:
 		out_of_bounds += numpy.array(
-			(boundaries[:, 1] > height) + (boundaries[:, 1] < -height),
+			(boundaries[:, 1] > height) + (boundaries[:, 1] < -height), 
 			dtype=float, copy=False, order=None, subok=False, ndmin=0
 		).reshape(n, 1)
 		if dimension > 2:
 			out_of_bounds += numpy.array(
-				(boundaries[:, 2] > depth) + (boundaries[:, 2] > depth),
+				(boundaries[:, 2] > depth) + (boundaries[:, 2] > depth), 
 				dtype=float, copy=False, order=None, subok=False, ndmin=0
 			).reshape(n, 1)
 	if boundary_type == 1:
@@ -793,8 +812,9 @@ def __update__(tick: int) -> None:
 	elif boundary_type == 2:
 		positions += out_of_bounds * (positions * -2)
 	
-	'''velocities = numpy.clip(velocities, -maximumSpeedSquared, maximumSpeedSquared)
-	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeedSquared, maximumSpeedSquared)'''
+	'''velocities = numpy.clip(velocities, -maximumSpeed, maximumSpeed)
+	velocitiesPredator = numpy.clip(velocitiesPredator, -maximumSpeed, maximumSpeed)
+	velocitiesPrey = numpy.clip(velocitiesPrey, -maximumSpeed, maximumSpeed)'''
 	velocities_squared = numpy.einsum("...i,...i", velocities, velocities).reshape(n, 1)
 	velocities_predator_squared = numpy.einsum(
 		"...i,...i", velocitiesPredator, velocitiesPredator
@@ -816,9 +836,11 @@ def __update__(tick: int) -> None:
 	
 	positions += dT * velocities
 	positionsPredator += dT * velocitiesPredator
+	# positionsPrey += dT * velocitiesPrey
 	
 	velocities *= 0.9
 	velocitiesPredator *= 0.9
+	# velocitiesPrey *= 0.9
 	
 	if animation:
 		matplotlib.pyplot.title("Tick %d" % tick)
@@ -924,9 +946,7 @@ def __measure__(tick: int) -> None:
 		
 		output["measurement"] = measurement
 		
-		measurement_array = numpy.array(
-			measurement, dtype=float, copy=False, order=None, subok=False, ndmin=0
-		)
+		measurement_array = numpy.array(measurement, dtype=float, copy=False, order=None, subok=False, ndmin=0)
 		
 		output["fitness"] = [
 			numpy.nan_to_num(numpy.mean(measurement_array[:, 0])), 
