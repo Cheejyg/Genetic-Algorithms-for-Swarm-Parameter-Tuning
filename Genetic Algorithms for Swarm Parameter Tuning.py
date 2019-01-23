@@ -187,7 +187,6 @@ def __main__() -> None:
 	
 	print(str((
 		(
-			"velocities"
 			"velocities", 
 			"predators", 
 			"preys", 
@@ -673,8 +672,8 @@ def __update__(tick: int) -> None:
 		) * -1
 	)
 	# Prey
+	matrixPreys = (distancesPrey < radiusPreySquared)
 	if nPreys > 0:
-		matrixPreys = (distancesPrey < radiusPreySquared)
 		prey = numpy.nan_to_num(
 			differencesPrey[numpy.arange(n), numpy.argmin(distancesPrey, axis=1)]
 			* (numpy.sum(matrixPreys, axis=1) > 0).reshape(n, 1)
