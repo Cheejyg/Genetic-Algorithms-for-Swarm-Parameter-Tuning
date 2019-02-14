@@ -113,6 +113,8 @@ def __initialise__() -> None:
 	
 	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
 	
+	process = []
+	
 	return
 
 
@@ -137,7 +139,7 @@ def __fitness__(candidate_solution: list, scene_file: str) -> float:
 			"prey": candidate_solution[10], 
 			"preyBoost": 2.0
 		},
-		"maximumSpeed": candidate_solution[11]
+		"maximumSpeed": candidate_solution[11]  # 42
 	}
 	
 	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
