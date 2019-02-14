@@ -143,8 +143,8 @@ def __fitness__(candidate_solution: list, scene_file: str) -> float:
 	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
 
 
-def __fitness_multiprocessing__(id: int, candidate_solution: list, scene_file: str, process_return: list):
-	process_return[id] = __fitness__(candidate_solution, scene_file)[1]
+def __fitness_multiprocessing__(x: int, candidate_solution: list, scene_file: str, process_return: list):
+	process_return[x] = __fitness__(candidate_solution, scene_file)[1]
 	
 	return
 
