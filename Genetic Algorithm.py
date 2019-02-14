@@ -118,7 +118,7 @@ def __initialise__() -> None:
 	return
 
 
-def __fitness__(candidate_solution: list, scene_file: str) -> float:
+def __fitness__(candidate_solution: list, scene_file: str) -> (tuple, [float]):
 	global parameters
 	
 	parameters = {

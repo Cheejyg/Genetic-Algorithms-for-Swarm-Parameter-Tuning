@@ -967,7 +967,7 @@ def __measure__(tick: int) -> None:
 	return
 
 
-def __run__(parameters: dict, scene_file: str) -> (str, [float]):
+def __run__(parameters: dict, scene_file: str) -> (tuple, [float]):
 	global dT
 	global boundary_type
 	global animation
