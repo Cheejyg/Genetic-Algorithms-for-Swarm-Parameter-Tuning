@@ -24,6 +24,7 @@ __version__ = "1.0"
 # import matplotlib.animation
 # import matplotlib.pyplot
 # from mpl_toolkits.mplot3d import Axes3D
+import multiprocessing
 import numpy
 # import os
 import random
@@ -53,11 +54,22 @@ populationSpecialisation = None
 
 parameters = None
 
+# multiprocessing
+process = None
+processReturn = None
+
 
 def __main__() -> None:
 	global population
 	global populationFitness
 	global populationSpecialisation
+	global process
+	global processReturn
+	
+	process = []
+	processReturn = multiprocessing.Manager().list()
+	for x in range(2 * n):
+		processReturn.append([])
 	
 	__initialise__()
 	
@@ -70,6 +82,8 @@ def __initialise__() -> None:
 	global population
 	global populationFitness
 	global populationSpecialisation
+	global process
+	global processReturn
 	
 	population = numpy.random.rand(n, properties) * search_space
 	
@@ -86,10 +100,16 @@ def __initialise__() -> None:
 	population[0][10] = 1
 	population[0][11] = 5.4934993590917414392968320820363
 	
-	populationFitness = []
 	for x in range(n):
-		fitness = __fitness__(population[x], "scene/scene.json")
-		populationFitness.append(fitness[1])
+		p = multiprocessing.Process(
+			target=__fitness_multiprocessing__, 
+			args=(x, population[x], "scene/scene.json", processReturn)
+		)
+		process.append(p)
+		p.start()
+	for x in range(n):
+		process[x].join()
+	populationFitness = numpy.array(processReturn[:n], dtype=float, copy=True, order=None, subok=False, ndmin=0)
 	
 	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
 	
@@ -121,6 +141,12 @@ def __fitness__(candidate_solution: list, scene_file: str) -> float:
 	}
 	
 	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
+
+
+def __fitness_multiprocessing__(id: int, candidate_solution: list, scene_file: str, process_return: list):
+	process_return[id] = __fitness__(candidate_solution, scene_file)[1]
+	
+	return
 
 
 def crossover(a: numpy.ndarray, b: numpy.ndarray) -> (numpy.ndarray, numpy.ndarray):
