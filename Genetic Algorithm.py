@@ -19,6 +19,7 @@ __version__ = "1.0"
 
 # import argparse
 # import json
+# import math
 # import matplotlib
 # import matplotlib.animation
 # import matplotlib.pyplot
@@ -29,31 +30,34 @@ import random
 # import scipy
 # import sys
 # import tensorflow
-# import time
+import time
 
 GeneticAlgorithmsForSwarmParameterTuning = __import__("Genetic Algorithms for Swarm Parameter Tuning")
 
 random.seed(24)
 numpy.random.seed(24)
-limit = 100
+search_space = 100
 crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
 n = 24
 properties = 12
-specialisations = 6
+nSpecialisations = 6
+ε = 0.1
 generations = 1000
 
 scenes = None
 
 population = None
 populationFitness = None
-specialisation = None
+populationSpecialisation = None
 
 parameters = None
 
 
 def __main__() -> None:
+	global population
 	global populationFitness
+	global populationSpecialisation
 	
 	__initialise__()
 	
@@ -65,16 +69,16 @@ def __main__() -> None:
 def __initialise__() -> None:
 	global population
 	global populationFitness
-	global specialisation
+	global populationSpecialisation
 	
-	population = numpy.random.rand(n, properties) * limit
+	population = numpy.random.rand(n, properties) * search_space
 	
 	populationFitness = []
 	for x in range(n):
 		fitness = __fitness__(population[x], "scene/scene.json")
 		populationFitness.append(fitness[1])
 	
-	specialisation = numpy.random.randint(0, specialisations, n, dtype=int)
+	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
 	
 	return
 
@@ -106,31 +110,27 @@ def __fitness__(candidate_solution: list, scene_file: str) -> float:
 	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
 
 
-def crossover(a: list, b: list) -> (list, list):
+def crossover(a: numpy.ndarray, b: numpy.ndarray) -> (numpy.ndarray, numpy.ndarray):
 	size = min(len(a), len(b))
 	
 	if crossover_type < 1:
 		lhs = numpy.random.randint(1 + 1, size=size) > 0
 		rhs = lhs < 1
 		
-		children = (
-			(a * lhs + b * rhs).tolist(), 
-			(b * lhs + a * rhs).tolist()
-		)
+		children = (a * lhs + b * rhs, b * lhs + a * rhs)
 	elif crossover_type == 1:
 		start_point = random.randint(1, size - 2)
 		
 		children = (
-			numpy.concatenate((a[:start_point], b[start_point:])).tolist(), 
-			numpy.concatenate((b[:start_point], a[start_point:])).tolist()
+			numpy.concatenate((a[:start_point], b[start_point:])), numpy.concatenate((b[:start_point], a[start_point:]))
 		)
 	elif crossover_type == 2:
 		start_point = random.randint(1, size - 3)
 		mid_point = random.randint(start_point + 1, size - 2)
 		
 		children = (
-			numpy.concatenate((a[0:start_point], b[start_point:mid_point], a[mid_point:])).tolist(), 
-			numpy.concatenate((b[0:start_point], a[start_point:mid_point], b[mid_point:])).tolist()
+			numpy.concatenate((a[0:start_point], b[start_point:mid_point], a[mid_point:])), 
+			numpy.concatenate((b[0:start_point], a[start_point:mid_point], b[mid_point:]))
 		)
 	else:
 		return None
@@ -138,26 +138,26 @@ def crossover(a: list, b: list) -> (list, list):
 	return children
 
 
-def mutation(a: list) -> list:
+def mutation(a: numpy.ndarray) -> numpy.ndarray:
 	size = len(a)
 	
 	if mutation_type == 0:
 		bit = numpy.random.rand(size) < (1 / size)
 		
-		a = ((numpy.random.rand(size) * limit) * (bit > 0) + a * (bit < 1)).tolist()
+		a = (numpy.random.rand(size) * search_space) * (bit > 0) + a * (bit < 1)
 	elif mutation_type == 1:
-		a = (numpy.array(limit) - a).tolist()
+		a = numpy.array(search_space) - a
 	elif mutation_type == 2:
 		boundary = numpy.random.rand()
 		
 		if boundary < (1 / 3):
-			a = numpy.clip(a, random.random() * limit, None).tolist()  # lower bound
+			a = numpy.clip(a, random.random() * search_space, None)  # lower bound
 		elif boundary < (2 / 3):
-			a = numpy.clip(a, None, random.random() * limit).tolist()  # upper bound
+			a = numpy.clip(a, None, random.random() * search_space)  # upper bound
 		else:
-			a = numpy.clip(a, random.random() * limit, random.random() * limit).tolist()  # lower and upper bound
+			a = numpy.clip(a, random.random() * search_space, random.random() * search_space)  # lower and upper bound
 	else:
-		a = list((numpy.random.rand(size) * limit).tolist())
+		a = numpy.random.rand(size) * search_space
 	
 	return a
 
