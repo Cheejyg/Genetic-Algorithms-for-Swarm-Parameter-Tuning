@@ -160,14 +160,14 @@ def crossover(a: numpy.ndarray, b: numpy.ndarray) -> (numpy.ndarray, numpy.ndarr
 		
 		children = (a * lhs + b * rhs, b * lhs + a * rhs)
 	elif crossover_type == 1:
-		start_point = random.randint(1, size - 2)
+		start_point = random.randint(0, size)
 		
 		children = (
 			numpy.concatenate((a[:start_point], b[start_point:])), numpy.concatenate((b[:start_point], a[start_point:]))
 		)
 	elif crossover_type == 2:
-		start_point = random.randint(1, size - 3)
-		mid_point = random.randint(start_point + 1, size - 2)
+		start_point = random.randint(0, size)
+		mid_point = random.randint(start_point, size)
 		
 		children = (
 			numpy.concatenate((a[0:start_point], b[start_point:mid_point], a[mid_point:])), 
