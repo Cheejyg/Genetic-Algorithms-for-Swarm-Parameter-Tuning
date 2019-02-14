@@ -185,22 +185,22 @@ def mutation(a: numpy.ndarray) -> numpy.ndarray:
 	if mutation_type == 0:
 		bit = numpy.random.rand(size) < (1 / size)
 		
-		a = (numpy.random.rand(size) * search_space) * (bit > 0) + a * (bit < 1)
+		child = (numpy.random.rand(size) * search_space) * (bit > 0) + a * (bit < 1)
 	elif mutation_type == 1:
-		a = numpy.array(search_space) - a
+		child = numpy.array(search_space) - a
 	elif mutation_type == 2:
 		boundary = numpy.random.rand()
 		
 		if boundary < (1 / 3):
-			a = numpy.clip(a, random.random() * search_space, None)  # lower bound
+			child = numpy.clip(a, random.random() * search_space, None)  # lower bound
 		elif boundary < (2 / 3):
-			a = numpy.clip(a, None, random.random() * search_space)  # upper bound
+			child = numpy.clip(a, None, random.random() * search_space)  # upper bound
 		else:
-			a = numpy.clip(a, random.random() * search_space, random.random() * search_space)  # lower and upper bound
+			child = numpy.clip(a, random.random() * search_space, random.random() * search_space)  # lower and upper bound
 	else:
-		a = numpy.random.rand(size) * search_space
+		child = numpy.random.rand(size) * search_space
 	
-	return a
+	return child
 
 
 if __name__ == "__main__":
