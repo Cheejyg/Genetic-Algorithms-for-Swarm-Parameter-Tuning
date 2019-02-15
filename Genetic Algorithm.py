@@ -41,6 +41,7 @@ search_space = 100
 crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
 n = 24
+nParents = 3
 properties = 12
 nSpecialisations = 6
 ε = 0.1
@@ -51,6 +52,8 @@ scenes = None
 population = None
 populationFitness = None
 populationSpecialisation = None
+childrenFitness = None
+childrenSpecialisation = None
 
 parameters = None
 
@@ -63,16 +66,41 @@ def __main__() -> None:
 	global population
 	global populationFitness
 	global populationSpecialisation
+	global childrenFitness
+	global childrenSpecialisation
 	global process
 	global processReturn
 	
+	children = []
+	childrenFitness = []
+	childrenSpecialisation = []
+	
 	process = []
 	processReturn = multiprocessing.Manager().list()
-	for x in range(2 * n):
+	for x in range(n + (2 * nParents)):
 		processReturn.append([])
 	
 	__initialise__()
 	
+	for generation in range(generations):
+		population_fitness = numpy.copy(populationFitness)
+		population_fitness[numpy.arange(len(population)), populationSpecialisation] = 0
+		population_fitness = populationFitness - population_fitness
+		population_fitness = population_fitness / numpy.sum(population_fitness, axis=0)
+		
+		for parents in range(nParents):
+			a_specialisation, b_specialisation = (
+				random.randint(0, nSpecialisations - 1), random.randint(0, nSpecialisations - 1)
+			)
+			
+			if a_specialisation != b_specialisation:
+				a = numpy.random.choice(len(population), 1, p=population_fitness[:, a_specialisation])[0]
+				b = numpy.random.choice(len(population), 1, p=population_fitness[:, b_specialisation])[0]
+			else:
+				a, b = numpy.random.choice(len(population), 2, False, p=population_fitness[:, a_specialisation])
+			
+			a, b = population[a], population[b]
+			
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
@@ -124,22 +152,22 @@ def __fitness__(candidate_solution: list, scene_file: str) -> (tuple, [float]):
 	parameters = {
 		"boidSize": 0.10922,
 		"radii": {
-			"separation": candidate_solution[1], 
-			"alignment": candidate_solution[2], 
-			"cohesion": candidate_solution[3], 
-			"predator": candidate_solution[4], 
-			"prey": candidate_solution[5]
+			"separation": candidate_solution[0], 
+			"alignment": candidate_solution[1], 
+			"cohesion": candidate_solution[2], 
+			"predator": candidate_solution[3], 
+			"prey": candidate_solution[4]
 		},
 		"weights": {
-			"separation": candidate_solution[6], 
-			"alignment": candidate_solution[7], 
-			"cohesion": candidate_solution[8], 
-			"predator": candidate_solution[9], 
-			"predatorBoost": 2.0, 
+			"separation": candidate_solution[5], 
+			"alignment": candidate_solution[6], 
+			"cohesion": candidate_solution[7], 
+			"predator": candidate_solution[8], 
+			"predatorBoost": candidate_solution[9], 
 			"prey": candidate_solution[10], 
-			"preyBoost": 2.0
+			"preyBoost": candidate_solution[11]
 		},
-		"maximumSpeed": candidate_solution[11]  # 42
+		"maximumSpeed": 42  # candidate_solution[11]
 	}
 	
 	return GeneticAlgorithmsForSwarmParameterTuning.__run__(parameters, scene_file)
