@@ -113,6 +113,16 @@ def __main__() -> None:
 			
 			childrenSpecialisation.append(a_specialisation), childrenSpecialisation.append(b_specialisation)
 			
+			p1, p2 = multiprocessing.Process(
+				target=__fitness_multiprocessing__, 
+				args=(len(children) - 2, a, "scene/scene.json", processReturn)
+			), multiprocessing.Process(
+				target=__fitness_multiprocessing__, 
+				args=(len(children) - 1, b, "scene/scene.json", processReturn)
+			)
+			process.append(p1), process.append(p2)
+			p1.start(), p2.start()
+		
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
