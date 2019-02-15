@@ -123,6 +123,8 @@ def __main__() -> None:
 			process.append(p1), process.append(p2)
 			p1.start(), p2.start()
 		
+		population = numpy.concatenate((population, children))
+		
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
