@@ -124,6 +124,7 @@ def __main__() -> None:
 			p1.start(), p2.start()
 		
 		population = numpy.concatenate((population, children))
+		populationSpecialisation = numpy.concatenate((populationSpecialisation, childrenSpecialisation))
 		
 	print(str(populationFitness).replace("],", "], \n"))
 	
