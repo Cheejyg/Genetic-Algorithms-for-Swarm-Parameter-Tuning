@@ -101,6 +101,8 @@ def __main__() -> None:
 			
 			a, b = population[a], population[b]
 			
+			a, b = crossover(a, b)
+			
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
