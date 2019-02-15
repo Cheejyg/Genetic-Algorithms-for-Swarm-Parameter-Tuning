@@ -104,6 +104,8 @@ def __main__() -> None:
 			a, b = crossover(a, b)
 			a, b = mutation(a), mutation(b)
 			
+			children.append(a), children.append(b)
+			
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
