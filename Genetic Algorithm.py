@@ -127,6 +127,8 @@ def __main__() -> None:
 		populationSpecialisation = numpy.concatenate((populationSpecialisation, childrenSpecialisation))
 		for x in range(len(process)):
 			process[x].join()
+		childrenFitness = numpy.array(processReturn[:len(children)], copy=True)
+		populationFitness = numpy.concatenate((populationFitness, childrenFitness))
 		
 	print(str(populationFitness).replace("],", "], \n"))
 	
