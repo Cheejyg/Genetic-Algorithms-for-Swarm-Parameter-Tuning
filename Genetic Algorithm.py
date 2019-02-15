@@ -106,6 +106,13 @@ def __main__() -> None:
 			
 			children.append(a), children.append(b)
 			
+			a_specialisation, b_specialisation = numpy.random.choice(
+				numpy.array([random.randint(0, nSpecialisations - 1), a_specialisation, b_specialisation]), 2, True, 
+				p=[ε, (1 - ε)/2, (1 - ε)/2]
+			)
+			
+			childrenSpecialisation.append(a_specialisation), childrenSpecialisation.append(b_specialisation)
+			
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
