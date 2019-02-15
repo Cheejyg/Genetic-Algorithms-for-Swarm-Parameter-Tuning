@@ -102,6 +102,7 @@ def __main__() -> None:
 			a, b = population[a], population[b]
 			
 			a, b = crossover(a, b)
+			a, b = mutation(a), mutation(b)
 			
 	print(str(populationFitness).replace("],", "], \n"))
 	
