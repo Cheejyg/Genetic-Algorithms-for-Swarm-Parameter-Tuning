@@ -128,17 +128,18 @@ def __initialise__() -> None:
 	population = numpy.random.rand(n, properties) * search_space
 	
 	# "seed" initial population
-	population[0][1] = 2
-	population[0][2] = 4
-	population[0][3] = 8
-	population[0][4] = 4
-	population[0][5] = 8
+	population[0][0] = 2
+	population[0][1] = 4
+	population[0][2] = 8
+	population[0][3] = 4
+	population[0][4] = 8
+	population[0][5] = 1
 	population[0][6] = 1
 	population[0][7] = 1
 	population[0][8] = 1
-	population[0][9] = 1
+	population[0][9] = 2
 	population[0][10] = 1
-	population[0][11] = 5.4934993590917414392968320820363
+	population[0][11] = 2
 	
 	for x in range(n):
 		p = multiprocessing.Process(
