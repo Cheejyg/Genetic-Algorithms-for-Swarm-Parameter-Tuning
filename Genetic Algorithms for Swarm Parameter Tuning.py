@@ -62,7 +62,9 @@ weightSeparation = None
 weightAlignment = None
 weightCohesion = None
 weightPredator = None
+weightPredatorBoost = None
 weightPrey = None
+weightPreyBoost = None
 maximumSpeed = None
 maximumSpeedSquared = None
 
@@ -273,7 +275,9 @@ def __global__() -> None:
 	global weightAlignment
 	global weightCohesion
 	global weightPredator
+	global weightPredatorBoost
 	global weightPrey
+	global weightPreyBoost
 	global maximumSpeed
 	global maximumSpeedSquared
 	global dimension
@@ -316,7 +320,9 @@ def __global__() -> None:
 		weightAlignment = inputs["weights"]["alignment"]
 		weightCohesion = inputs["weights"]["cohesion"]
 		weightPredator = inputs["weights"]["predator"]
+		weightPredatorBoost = inputs["weights"]["predatorBoost"]
 		weightPrey = inputs["weights"]["prey"]
+		weightPreyBoost = inputs["weights"]["preyBoost"]
 		maximumSpeed = inputs["maximumSpeed"]
 	except (FileNotFoundError, json.decoder.JSONDecodeError, UnboundLocalError, KeyError, IndexError, TypeError) as e:
 		if verbosity > 0:
@@ -332,7 +338,9 @@ def __global__() -> None:
 		weightAlignment = random.random()
 		weightCohesion = random.random()
 		weightPredator = random.random()
+		weightPredatorBoost = random.random() + 1
 		weightPrey = random.random()
+		weightPreyBoost = random.random() + 1
 		maximumSpeed = random.random() * 100
 	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
 	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
@@ -553,13 +561,16 @@ def __global__() -> None:
 			"\t\t\t\"alignment\": %f, \n"
 			"\t\t\t\"cohesion\": %f, \n"
 			"\t\t\t\"predator\": %f, \n"
+			"\t\t\t\"predatorBoost\": %f, \n"
 			"\t\t\t\"prey\": %f\n"
+			"\t\t\t\"preyBoost\": %f\n"
 			"\t\t}, \n"
 			"\t\t\"maximumSpeed\": %f\n"
 			"\t}" % (
 				boidSize, 
 				radius_separation, radius_alignment, radius_cohesion, radius_predator, radius_prey, 
-				weightSeparation, weightAlignment, weightCohesion, weightPredator, weightPrey, 
+				weightSeparation, weightAlignment, weightCohesion, weightPredator, weightPredatorBoost, weightPrey, 
+				weightPreyBoost, 
 				maximumSpeed
 			)
 		)
@@ -802,7 +813,7 @@ def __update__(tick: int) -> None:
 	target = \
 		(
 			(weightSeparation * separations) + (weightAlignment * alignments) + (weightCohesion * cohesions)
-			+ (weightPredator * predator) + (weightPrey * prey)
+			+ (weightPredator * weightPredatorBoost * predator) + (weightPrey * weightPreyBoost * prey)
 		)
 	
 	velocities += target + numpy.random.randn(n, dimension)
