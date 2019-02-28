@@ -185,17 +185,30 @@ def __main__() -> None:
 		for tick in range(ticks):
 			__update__(tick)
 	
-	print(str((
-		(
-			"velocities", 
-			"predators", 
-			"preys", 
-			"distances", 
-			"distancesPredator", 
-			"distancesPrey"
-		), 
-		output["fitness"]
-	)).replace("), [", "), \n["))
+	try:
+		print(str((
+			(
+				"velocities", 
+				"predators", 
+				"preys", 
+				"distances", 
+				"distancesPredator", 
+				"distancesPrey"
+			), 
+			output["fitness"]
+		)).replace("), [", "), \n["))
+	except (UnboundLocalError, KeyError, IndexError) as e:
+		print(str((
+			(
+				"velocities", 
+				"predators", 
+				"preys", 
+				"distances", 
+				"distancesPredator", 
+				"distancesPrey"
+			), 
+			e
+		)).replace("), [", "), \n["))
 	
 	if verbosity > 0:
 		if verbosity > 1:
