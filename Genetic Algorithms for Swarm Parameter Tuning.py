@@ -453,7 +453,7 @@ def __global__() -> None:
 		# ticks = 1024
 	if positions.shape[0] != n or positions.shape[1] != dimension \
 		or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension \
-		or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != nPreys:
+		or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != dimension:
 			if verbosity > 0:
 				print("OVERRIDE")
 			
