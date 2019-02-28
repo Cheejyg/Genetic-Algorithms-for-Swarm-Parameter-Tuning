@@ -85,6 +85,8 @@ rotationsPrey = None
 velocities = None
 velocitiesPredator = None
 velocitiesPrey = None
+typePredator = None
+waypointsPredator = None
 
 matrixSeparations = None
 matrixAlignments = None
@@ -104,6 +106,8 @@ differencesPrey = None
 distances = None
 distancesPredator = None
 distancesPrey = None
+
+predatorsWaypoint = None
 
 measurement = None
 
@@ -297,11 +301,14 @@ def __global__() -> None:
 	global velocities
 	global velocitiesPredator
 	global velocitiesPrey
+	global typePredator
+	global waypointsPredator
 	global separations
 	global alignments
 	global cohesions
 	global predator
 	global prey
+	global predatorsWaypoint
 	global measurement
 	
 	output = {}
@@ -381,6 +388,8 @@ def __global__() -> None:
 		velocitiesPrey = numpy.array(
 			scene["preys"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
+		typePredator = scene["predators"]["type"]
+		waypointsPredator = scene["predators"]["waypoints"]
 		n = positions.shape[0]
 		nPredators = positionsPredator.shape[0]
 		nPreys = positionsPrey.shape[0]
@@ -432,6 +441,10 @@ def __global__() -> None:
 			if velocitiesPredator is None else velocitiesPredator
 		velocitiesPrey = numpy.random.randn(nPreys, dimension) \
 			if velocitiesPrey is None else velocitiesPrey
+		typePredator = random.randint(1, 2) \
+			if typePredator is None else typePredator
+		waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
+			if waypointsPredator is None else waypointsPredator
 		
 		positions[0] = numpy.array(
 			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
@@ -497,6 +510,11 @@ def __global__() -> None:
 			velocitiesPrey = numpy.random.randn(nPreys, dimension) \
 				if velocitiesPrey is None or velocitiesPrey.shape[0] != nPreys \
 				or velocitiesPrey.shape[1] != dimension else velocitiesPrey
+			typePredator = random.randint(1, 2) \
+				if typePredator is None else typePredator
+			waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
+				if waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
+				or waypointsPredator.shape[2] != dimension else waypointsPredator
 			
 			positions[0] = numpy.array(
 				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, 
@@ -533,10 +551,11 @@ def __global__() -> None:
 		if nPredators > 0:
 			print(
 				"\t\"predators\": {\n"
+				"\t\t\"type\": %s, \n"
 				"\t\t\"positions\": %s, \n"
 				"\t\t\"velocities\": %s \n"
 				"\t}, "
-				% (str(positionsPredator.tolist()), str(velocitiesPredator.tolist()))
+				% (typePredator, str(positionsPredator.tolist()), str(velocitiesPredator.tolist()))
 			)
 		if nPreys > 0:
 			print(
@@ -592,6 +611,7 @@ def __global__() -> None:
 				"velocities": str(velocities).replace('\n', "")
 			}
 			output["predators"] = {
+				"type": typePredator, 
 				"positions": str(positionsPredator).replace('\n', ""), 
 				"rotations": str(rotationsPredator).replace('\n', ""), 
 				"velocities": str(velocitiesPredator).replace('\n', "")
@@ -620,6 +640,8 @@ def __global__() -> None:
 	cohesions = numpy.zeros((n, dimension), dtype=float, order=None)
 	predator = numpy.zeros((n, dimension), dtype=float, order=None)
 	prey = numpy.zeros((n, dimension), dtype=float, order=None)
+	
+	predatorsWaypoint = [0]
 	
 	measurement = [] if measure else None
 	
@@ -659,6 +681,7 @@ def __update__(tick: int) -> None:
 	global distances
 	global distancesPredator
 	global distancesPrey
+	global predatorsWaypoint
 	
 	differences = positions - positions.reshape(n, 1, dimension)
 	differencesPredator = positionsPredator - positions.reshape(n, 1, dimension)
@@ -710,10 +733,16 @@ def __update__(tick: int) -> None:
 	
 	# Others
 	# Predators
-	'''differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
-	distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
-	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator, copy=False)'''
-	predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=0)] - positionsPredator, copy=False)
+	if typePredator == 1:
+		'''differencesPredator = positions - positionsPredator.reshape(nPredators, 1, dimension)
+		distancesPredator = numpy.einsum("...i,...i", differencesPredator, differencesPredator)
+		predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=1)] - positionsPredator, copy=False)'''
+		predators = numpy.nan_to_num(positions[numpy.argmin(distancesPredator, axis=0)] - positionsPredator, copy=False)
+	elif typePredator == 2:
+		predators = waypointsPredator[0][predatorsWaypoint[0]] - positionsPredator
+		if round(waypointsPredator[0][predatorsWaypoint[0]][0]) == round(positionsPredator[0][0]) \
+			and round(waypointsPredator[0][predatorsWaypoint[0]][1]) == round(positionsPredator[0][1]):
+				predatorsWaypoint[0] = (predatorsWaypoint[0] + 1) % len(waypointsPredator[0])
 	# Preys
 	if tick % 200 == 0:
 		if dimension == 1:
