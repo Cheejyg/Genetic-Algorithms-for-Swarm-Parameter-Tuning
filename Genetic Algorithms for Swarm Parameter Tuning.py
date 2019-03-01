@@ -86,6 +86,7 @@ velocities = None
 velocitiesPredator = None
 velocitiesPrey = None
 typePredator = None
+typePrey = None
 waypointsPredator = None
 
 matrixSeparations = None
@@ -243,7 +244,7 @@ def __argparse__() -> None:
 		help="json parameters file"
 	)
 	parser.add_argument(
-		"-s", "--scene", type=str, default="scene/scene.json", 
+		"-s", "--scene", type=str, default="scene/scene_predatorWaypoint.json", 
 		help="json scene file"
 	)
 	parser.add_argument(
@@ -302,6 +303,7 @@ def __global__() -> None:
 	global velocitiesPredator
 	global velocitiesPrey
 	global typePredator
+	global typePrey
 	global waypointsPredator
 	global separations
 	global alignments
@@ -389,6 +391,7 @@ def __global__() -> None:
 			scene["preys"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
 		typePredator = scene["predators"]["type"]
+		typePrey = scene["preys"]["type"]
 		waypointsPredator = scene["predators"]["waypoints"]
 		n = positions.shape[0]
 		nPredators = positionsPredator.shape[0]
@@ -443,6 +446,8 @@ def __global__() -> None:
 			if velocitiesPrey is None else velocitiesPrey
 		typePredator = random.randint(1, 2) \
 			if typePredator is None else typePredator
+		typePrey = random.randint(1, 2) \
+			if typePrey is None else typePrey
 		waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
 			if waypointsPredator is None else waypointsPredator
 		
@@ -512,6 +517,8 @@ def __global__() -> None:
 				or velocitiesPrey.shape[1] != dimension else velocitiesPrey
 			typePredator = random.randint(1, 2) \
 				if typePredator is None else typePredator
+			typePrey = random.randint(1, 2) \
+				if typePrey is None else typePrey
 			waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
 				if waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
 				or waypointsPredator.shape[2] != dimension else waypointsPredator
@@ -560,10 +567,11 @@ def __global__() -> None:
 		if nPreys > 0:
 			print(
 				"\t\"preys\": {\n"
+				"\t\t\"type\": %s, \n"
 				"\t\t\"positions\": %s, \n"
 				"\t\t\"velocities\": %s \n"
 				"\t}, "
-				% (str(positionsPrey.tolist()), str(velocitiesPrey.tolist()))
+				% (typePrey, str(positionsPrey.tolist()), str(velocitiesPrey.tolist()))
 			)
 		print(
 			"\t\"parameters\": {\n"
@@ -617,6 +625,7 @@ def __global__() -> None:
 				"velocities": str(velocitiesPredator).replace('\n', "")
 			}
 			output["preys"] = {
+				"type": typePrey, 
 				"positions": str(positionsPrey).replace('\n', ""), 
 				"rotations": str(rotationsPrey).replace('\n', ""), 
 				"velocities": str(velocitiesPrey).replace('\n', "")
@@ -745,25 +754,64 @@ def __update__(tick: int) -> None:
 				predatorsWaypoint[0] = (predatorsWaypoint[0] + 1) % len(waypointsPredator[0])
 	# Preys
 	if tick % 200 == 0:
-		if dimension == 1:
-			positionsPrey = numpy.random.uniform(-width, width, (nPreys, 1))
-		elif dimension == 2:
-			positionsPrey = numpy.concatenate(
-				(
-					numpy.random.uniform(-width, width, (nPreys, 1)), 
-					numpy.random.uniform(-height, height, (nPreys, 1))
-				), 
-				axis=1
-			)
-		elif dimension == 3:
-			positionsPrey = numpy.concatenate(
-				(
-					numpy.random.uniform(-width, width, (nPreys, 1)), 
-					numpy.random.uniform(-width, width, (nPreys, 1)), 
-					numpy.random.uniform(-depth, depth, (nPreys, 1))
-				), 
-				axis=1
-			)
+		if typePrey == 1:
+			if dimension == 1:
+				positionsPrey = numpy.random.uniform(-width, width, (nPreys, 1))
+			elif dimension == 2:
+				positionsPrey = numpy.concatenate(
+					(
+						numpy.random.uniform(-width, width, (nPreys, 1)), 
+						numpy.random.uniform(-height, height, (nPreys, 1))
+					), 
+					axis=1
+				)
+			elif dimension == 3:
+				positionsPrey = numpy.concatenate(
+					(
+						numpy.random.uniform(-width, width, (nPreys, 1)), 
+						numpy.random.uniform(-width, width, (nPreys, 1)), 
+						numpy.random.uniform(-depth, depth, (nPreys, 1))
+					), 
+					axis=1
+				)
+		elif typePrey == 2:
+			preyY = None
+			preyM = None
+			preyX = None
+			preyC = None
+			preyR = None
+			if dimension == 1:
+				positionsPrey = numpy.random.uniform(-width, width, (nPreys, 1))
+			elif dimension == 2:
+				preyY = None
+				preyM = (
+					waypointsPredator[0][(predatorsWaypoint[0] + 1) % len(waypointsPredator[0])][1] 
+					- waypointsPredator[0][predatorsWaypoint[0]][1]
+				) / (
+					waypointsPredator[0][(predatorsWaypoint[0] + 1) % len(waypointsPredator[0])][0] 
+					- waypointsPredator[0][predatorsWaypoint[0]][0]
+				)
+				preyX = random.uniform(-width, width)
+				preyC = 0
+				preyY = preyM * preyX + preyC
+				preyR = random.randint(0, int(min(width, height) / 4))
+				
+				positionsPrey = numpy.concatenate(
+					(
+						numpy.random.uniform(preyX - preyR, preyX + preyR, (nPreys, 1)), 
+						numpy.random.uniform(preyY - preyR, preyY + preyR, (nPreys, 1))
+					), 
+					axis=1
+				)
+			elif dimension == 3:
+				positionsPrey = numpy.concatenate(
+					(
+						numpy.random.uniform(-width, width, (nPreys, 1)), 
+						numpy.random.uniform(-width, width, (nPreys, 1)), 
+						numpy.random.uniform(-depth, depth, (nPreys, 1))
+					), 
+					axis=1
+				)
 	
 	# ------------------------------------------------------------------------------------------------------------------------
 	'''position = None
