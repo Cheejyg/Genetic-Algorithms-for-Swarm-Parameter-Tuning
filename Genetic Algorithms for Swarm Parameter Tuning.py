@@ -147,7 +147,7 @@ def __main__() -> None:
 					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), 
 					s=8, c="Green", marker="^"
 				)
-			if dimension == 2:
+			elif dimension == 2:
 				matplotlib.pyplot.xlabel("x")
 				matplotlib.pyplot.xlim(-width, width)
 				matplotlib.pyplot.ylabel("y")
@@ -162,7 +162,7 @@ def __main__() -> None:
 				scatterPreys = matplotlib.pyplot.scatter(
 					positionsPrey[:, 0], positionsPrey[:, 1], s=8, c="Green", marker="^"
 				)
-			if dimension == 3:
+			elif dimension == 3:
 				ax = canvas.add_subplot(111, projection="3d")
 				ax.set_xlabel("x")
 				ax.set_xlim(-width, width)
@@ -747,7 +747,7 @@ def __update__(tick: int) -> None:
 	if tick % 200 == 0:
 		if dimension == 1:
 			positionsPrey = numpy.random.uniform(-width, width, (nPreys, 1))
-		if dimension == 2:
+		elif dimension == 2:
 			positionsPrey = numpy.concatenate(
 				(
 					numpy.random.uniform(-width, width, (nPreys, 1)), 
@@ -755,7 +755,7 @@ def __update__(tick: int) -> None:
 				), 
 				axis=1
 			)
-		if dimension == 3:
+		elif dimension == 3:
 			positionsPrey = numpy.concatenate(
 				(
 					numpy.random.uniform(-width, width, (nPreys, 1)), 
@@ -909,11 +909,11 @@ def __update__(tick: int) -> None:
 				scatter.set_offsets(numpy.insert(positions, [1], [0], axis=1))
 				scatterPredators.set_offsets(numpy.insert(positionsPredator, [1], [0], axis=1))
 				scatterPreys.set_offsets(numpy.insert(positionsPrey, [1], [0], axis=1))
-			if dimension == 2:
+			elif dimension == 2:
 				scatter.set_offsets(positions)
 				scatterPredators.set_offsets(positionsPredator)
 				scatterPreys.set_offsets(positionsPrey)
-			if dimension == 3:
+			elif dimension == 3:
 				scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
 				scatterPredators._offsets3d = (
 					positionsPredator[:, 0], positionsPredator[:, 1], positionsPredator[:, 2]
@@ -932,7 +932,7 @@ def __update__(tick: int) -> None:
 					positionsPrey[:, 0], numpy.zeros((nPreys, dimension), dtype=float, order=None), 
 					s=8, c="Green", marker="^"
 				)
-			if dimension == 2:
+			elif dimension == 2:
 				scatter = matplotlib.pyplot.scatter(
 					positions[:, 0], positions[:, 1], s=8, marker="o"
 				)
@@ -942,7 +942,7 @@ def __update__(tick: int) -> None:
 				scatterPreys = matplotlib.pyplot.scatter(
 					positionsPrey[:, 0], positionsPrey[:, 1], s=8, c="Green", marker="^"
 				)
-			if dimension == 3:
+			elif dimension == 3:
 				scatter = ax.scatter(
 					positions[:, 0], positions[:, 1], positions[:, 2], s=8, marker="o"
 				)
