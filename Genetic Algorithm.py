@@ -130,6 +130,22 @@ def __main__() -> None:
 		childrenFitness = numpy.array(processReturn[:len(children)], copy=True)
 		populationFitness = numpy.concatenate((populationFitness, childrenFitness))
 		
+		specialisation_remove = (numpy.unique(
+			populationSpecialisation, return_index=False, return_inverse=False, return_counts=True
+		)[1] * ((len(population) - n) / len(population))).astype(int)
+		population_remove = []
+		for specialisation in range(nSpecialisations):
+			specialisation_population = numpy.where(populationSpecialisation == specialisation)[0]
+			fitness_sort = numpy.argsort(populationFitness[specialisation_population, specialisation], axis=0)
+			population_remove += (specialisation_population[fitness_sort][0:specialisation_remove[specialisation]])\
+				.tolist()
+		population = numpy.delete(population, population_remove, axis=0)
+		populationFitness = numpy.delete(populationFitness, population_remove, axis=0)
+		populationSpecialisation = numpy.delete(populationSpecialisation, population_remove, axis=0)
+		
+		children = []
+		childrenFitness = []
+		childrenSpecialisation = []
 	print(str(populationFitness).replace("],", "], \n"))
 	
 	return
