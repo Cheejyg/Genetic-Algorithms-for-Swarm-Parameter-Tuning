@@ -390,9 +390,6 @@ def __global__() -> None:
 		velocitiesPrey = numpy.array(
 			scene["preys"]["velocities"], dtype=float, copy=False, order=None, subok=False, ndmin=0
 		)
-		typePredator = scene["predators"]["type"]
-		typePrey = scene["preys"]["type"]
-		waypointsPredator = scene["predators"]["waypoints"]
 		n = positions.shape[0]
 		nPredators = positionsPredator.shape[0]
 		nPreys = positionsPrey.shape[0]
@@ -401,6 +398,10 @@ def __global__() -> None:
 		height = scene["window"]["height"]
 		if dimension > 2:
 			depth = scene["window"]["depth"]
+		typePredator = scene["predators"]["type"]
+		typePrey = scene["preys"]["type"]
+		if typePredator == 2:
+			waypointsPredator = scene["predators"]["waypoints"]
 		
 		if positions.shape[0] != n or positions.shape[1] != dimension \
 			or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension \
@@ -449,7 +450,7 @@ def __global__() -> None:
 		typePrey = random.randint(1, 2) \
 			if typePrey is None else typePrey
 		waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
-			if waypointsPredator is None else waypointsPredator
+			if typePredator == 2 and waypointsPredator is None else waypointsPredator
 		
 		positions[0] = numpy.array(
 			numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, ndmin=0
@@ -520,7 +521,7 @@ def __global__() -> None:
 			typePrey = random.randint(1, 2) \
 				if typePrey is None else typePrey
 			waypointsPredator = numpy.random.rand(nPredators, random.randint(2, 10), dimension) * min(width, height) \
-				if waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
+				if typePredator == 2 and waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
 				or waypointsPredator.shape[2] != dimension else waypointsPredator
 			
 			positions[0] = numpy.array(

@@ -27,6 +27,7 @@
 		]
 	},
 	"predators": {
+		"type": 1, 
 		"positions": [
 			[0, 0]
 		],
@@ -38,6 +39,7 @@
 		]
 	},
 	"preys": {
+		"type": 1, 
 		"positions": [
 			[0, 0]
 		],
