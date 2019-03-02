@@ -58,6 +58,7 @@ childrenSpecialisation = None
 parameters = None
 
 # multiprocessing
+batch_size = 32
 process = None
 processReturn = None
 
@@ -122,11 +123,15 @@ def __main__() -> None:
 			)
 			process.append(p1), process.append(p2)
 			p1.start(), p2.start()
+			
+			if parents % batch_size == 0:
+				for p in process:
+					p.join()
 		
 		population = numpy.concatenate((population, children))
 		populationSpecialisation = numpy.concatenate((populationSpecialisation, childrenSpecialisation))
-		for x in range(len(process)):
-			process[x].join()
+		for p in process:
+			p.join()
 		childrenFitness = numpy.array(processReturn[:len(children)], copy=True)
 		populationFitness = numpy.concatenate((populationFitness, childrenFitness))
 		
@@ -181,8 +186,14 @@ def __initialise__() -> None:
 		)
 		process.append(p)
 		p.start()
-	for x in range(n):
-		process[x].join()
+		
+		if x % batch_size == 0:
+			for p in process:
+				p.join()
+	
+	for p in process:
+		p.join()
+	
 	populationFitness = numpy.array(processReturn[:n], dtype=float, copy=True, order=None, subok=False, ndmin=0)
 	
 	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
