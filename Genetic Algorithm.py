@@ -58,7 +58,7 @@ childrenSpecialisation = None
 parameters = None
 
 # multiprocessing
-batch_size = 32
+batch_size = 16 / 2
 process = None
 processReturn = None
 
