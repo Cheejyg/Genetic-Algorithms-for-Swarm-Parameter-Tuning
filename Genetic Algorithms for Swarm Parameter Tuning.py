@@ -531,11 +531,12 @@ def __global__() -> None:
 				if typePredator is None else typePredator
 			typePrey = random.randint(1, 2) \
 				if typePrey is None else typePrey
-			waypointsPredator = (
-				numpy.random.rand(nPredators, random.randint(2, 24), dimension) * (2 * min(width, height))
-			) - min(width, height) \
-				if typePredator == 2 and waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
-				or waypointsPredator.shape[2] != dimension else waypointsPredator
+			if typePredator == 2:
+				waypointsPredator = (
+					numpy.random.rand(nPredators, random.randint(2, 24), dimension) * (2 * min(width, height))
+				) - min(width, height) \
+					if waypointsPredator is None or waypointsPredator.shape[0] != nPredators \
+					or waypointsPredator.shape[2] != dimension else waypointsPredator
 			
 			positions[0] = numpy.array(
 				numpy.ones(dimension, dtype=float, order=None), dtype=float, copy=False, order=None, subok=False, 
