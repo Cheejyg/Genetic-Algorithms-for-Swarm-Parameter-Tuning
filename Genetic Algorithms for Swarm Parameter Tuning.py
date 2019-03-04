@@ -403,6 +403,15 @@ def __global__() -> None:
 		if typePredator == 2:
 			waypointsPredator = scene["predators"]["waypoints"]
 		
+		if nPredators < 1:
+			positionsPredator.shape = (0, dimension)
+			rotationsPredator.shape = (0, dimension)
+			velocitiesPredator.shape = (0, dimension)
+		if nPreys < 1:
+			positionsPrey.shape = (0, dimension)
+			rotationsPrey.shape = (0, dimension)
+			velocitiesPrey.shape = (0, dimension)
+		
 		if positions.shape[0] != n or positions.shape[1] != dimension \
 			or positionsPredator.shape[0] != nPredators or positionsPredator.shape[1] != dimension \
 			or positionsPrey.shape[0] != nPreys or positionsPrey.shape[1] != dimension:
