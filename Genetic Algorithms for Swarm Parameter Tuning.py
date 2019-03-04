@@ -244,7 +244,7 @@ def __argparse__() -> None:
 		help="json parameters file"
 	)
 	parser.add_argument(
-		"-s", "--scene", type=str, default="scene/scene_predatorWaypoint.json", 
+		"-s", "--scene", type=str, default="scene/scene.json", 
 		help="json scene file"
 	)
 	parser.add_argument(

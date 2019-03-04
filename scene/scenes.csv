@@ -1,0 +1,7 @@
+scene,n,predators (type),preys (type)
+scene_velocities.json,400,0,0
+scene_predators.json,400,4 (1),0
+scene_preys.json,400,0,4 (1)
+scene_distances.json,400,4 (1),4 (1)
+scene_distancesPredator.json,400,1 (2),1 (1)
+scene_distancesPrey.json,400,1 (2),1 (2)

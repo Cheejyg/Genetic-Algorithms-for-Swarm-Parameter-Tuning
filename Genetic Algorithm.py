@@ -40,14 +40,18 @@ numpy.random.seed(24)
 search_space = 100
 crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
-n = 24
-nParents = 3
+n = 1000
+nParents = 100
 properties = 12
 nSpecialisations = 6
 ε = 0.1
 generations = 1000
 
 scenes = None
+specialisationScenes = [
+	"scene/scene_velocities.json", "scene/scene_predators.json", "scene/scene_preys.json", 
+	"scene/scene_distances.json", "scene/scene_distancesPredator.json", "scene/scene_distancesPrey.json"
+]
 
 population = None
 populationFitness = None
@@ -116,10 +120,10 @@ def __main__() -> None:
 			
 			p1, p2 = multiprocessing.Process(
 				target=__fitness_multiprocessing__, 
-				args=(len(children) - 2, a, "scene/scene.json", processReturn)
+				args=(len(children) - 2, a, specialisationScenes[a_specialisation], processReturn)
 			), multiprocessing.Process(
 				target=__fitness_multiprocessing__, 
-				args=(len(children) - 1, b, "scene/scene.json", processReturn)
+				args=(len(children) - 1, b, specialisationScenes[b_specialisation], processReturn)
 			)
 			process.append(p1), process.append(p2)
 			p1.start(), p2.start()
@@ -151,7 +155,14 @@ def __main__() -> None:
 		children = []
 		childrenFitness = []
 		childrenSpecialisation = []
-	print(str(populationFitness).replace("],", "], \n"))
+		
+		print(
+			"generation: %d, n: %d\npopulation: \t\t%s\nspecialisation: \t%s\nfitness: \t\t\t%s\n" 
+			% (
+				generation, len(population), population.tolist(), populationSpecialisation.tolist(), 
+				populationFitness.tolist()
+			)
+		)
 	
 	return
 
@@ -179,10 +190,12 @@ def __initialise__() -> None:
 	population[0][10] = 1
 	population[0][11] = 2
 	
+	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
+	
 	for x in range(n):
 		p = multiprocessing.Process(
 			target=__fitness_multiprocessing__, 
-			args=(x, population[x], "scene/scene.json", processReturn)
+			args=(x, population[x], specialisationScenes[populationSpecialisation[x]], processReturn)
 		)
 		process.append(p)
 		p.start()
@@ -196,7 +209,6 @@ def __initialise__() -> None:
 	
 	populationFitness = numpy.array(processReturn[:n], dtype=float, copy=True, order=None, subok=False, ndmin=0)
 	
-	populationSpecialisation = numpy.random.randint(0, nSpecialisations, n, dtype=int)
 	
 	process = []
 	
