@@ -128,7 +128,7 @@ def __main__() -> None:
 			process.append(p1), process.append(p2)
 			p1.start(), p2.start()
 			
-			if parents % batch_size == 0:
+			if (2 * parents) % batch_size == 0:
 				for p in process:
 					p.join()
 		
