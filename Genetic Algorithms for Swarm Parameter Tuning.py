@@ -1098,7 +1098,9 @@ def __run__(parameters: dict, scene_file: str) -> (tuple, [float]):
 	global weightAlignment
 	global weightCohesion
 	global weightPredator
+	global weightPredatorBoost
 	global weightPrey
+	global weightPreyBoost
 	global maximumSpeed
 	global maximumSpeedSquared
 	global ticks
@@ -1128,7 +1130,9 @@ def __run__(parameters: dict, scene_file: str) -> (tuple, [float]):
 	weightAlignment = parameters["weights"]["alignment"]
 	weightCohesion = parameters["weights"]["cohesion"]
 	weightPredator = parameters["weights"]["predator"]
+	weightPredatorBoost = parameters["weights"]["predatorBoost"]
 	weightPrey = parameters["weights"]["prey"]
+	weightPreyBoost = parameters["weights"]["preyBoost"]
 	maximumSpeed = parameters["maximumSpeed"]
 	radiusSeparationSquared = (radius_separation + (radius_separation * boidSize) + boidSize) ** 2
 	radiusAlignmentSquared = (radius_alignment + (radius_alignment * boidSize) + boidSize) ** 2
