@@ -44,8 +44,13 @@ n = 100
 nParents = 12
 properties = 12
 nSpecialisations = 6
-ε = 0.1
-generations = 1000
+α = 0.1
+β = 0.5
+generations = 10000
+
+outputFilename = "Genetic Algorithm.log.json"
+outputFile = None
+output = None
 
 scenes = None
 specialisationScenes = [
@@ -62,12 +67,15 @@ childrenSpecialisation = None
 parameters = None
 
 # multiprocessing
-batch_size = 4 - 2
+batch_size = 4 / 2  # physical cores / 2
 process = None
 processReturn = None
 
 
 def __main__() -> None:
+	global outputFilename
+	global outputFile
+	global output
 	global population
 	global populationFitness
 	global populationSpecialisation
@@ -85,6 +93,10 @@ def __main__() -> None:
 	for x in range(n + (2 * nParents)):
 		processReturn.append([])
 	
+	output = []
+	outputFile = open(outputFilename, "at")
+	outputFile.write("[")
+	
 	__initialise__()
 	
 	for generation in range(generations):
@@ -92,6 +104,12 @@ def __main__() -> None:
 		population_fitness[numpy.arange(len(population)), populationSpecialisation] = 0
 		population_fitness = populationFitness - population_fitness
 		population_fitness = population_fitness / numpy.sum(population_fitness, axis=0)
+		
+		alpha_normalisation = numpy.zeros(population_fitness.shape, dtype=float)
+		for specialisation in range(nSpecialisations):
+			specialisation_population = numpy.where(populationSpecialisation == specialisation)[0]
+			alpha_normalisation[specialisation_population, specialisation] += 1 / len(specialisation_population)
+		population_fitness = (population_fitness * α) + (1 - α) * alpha_normalisation
 		
 		for parents in range(nParents):
 			a_specialisation, b_specialisation = (
@@ -113,7 +131,7 @@ def __main__() -> None:
 			
 			a_specialisation, b_specialisation = numpy.random.choice(
 				numpy.array([random.randint(0, nSpecialisations - 1), a_specialisation, b_specialisation]), 2, True, 
-				p=[ε, (1 - ε)/2, (1 - ε)/2]
+				p=[β, (1 - β)/2, (1 - β)/2]
 			)
 			
 			childrenSpecialisation.append(a_specialisation), childrenSpecialisation.append(b_specialisation)
@@ -156,6 +174,18 @@ def __main__() -> None:
 		childrenFitness = []
 		childrenSpecialisation = []
 		
+		output.append({
+			"population": population.tolist(), 
+			"specialisation": populationSpecialisation.tolist(), 
+			"fitness": populationFitness.tolist()
+		})
+		
+		if generation % 20 == 0:
+			outputFile.write(json.dumps(output)[1:-1])
+			outputFile.write(",")
+			outputFile.flush()
+			output = []
+		
 		print(
 			"generation: %d, n: %d\npopulation: \t\t%s\nspecialisation: \t%s\nfitness: \t\t\t%s\n" 
 			% (
@@ -163,6 +193,10 @@ def __main__() -> None:
 				populationFitness.tolist()
 			)
 		)
+	outputFile.write(json.dumps(output)[1:-1])
+	outputFile.write("]")
+	outputFile.flush()
+	outputFile.close()
 	
 	return
 
