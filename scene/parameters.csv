@@ -1,0 +1,13 @@
+parameter,index
+radii_separation,[0]
+radii_alignment,[1]
+radii_cohesion,[2]
+radii_predator,[3]
+radii_prey,[4]
+weights_separation,[5]
+weights_alignment,[6]
+weights_cohesion,[7]
+weights_predator,[8]
+weights_predatorBoost,[9]
+weights_prey,[10]
+weights_preyBoost,[11]
