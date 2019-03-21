@@ -18,7 +18,7 @@ __status__ = "Development"
 __version__ = "1.0"
 
 # import argparse
-# import json
+import json
 # import math
 # import matplotlib
 # import matplotlib.animation
@@ -40,8 +40,8 @@ numpy.random.seed(24)
 search_space = 100
 crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point]
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
-n = 1000
-nParents = 100
+n = 100
+nParents = 12
 properties = 12
 nSpecialisations = 6
 ε = 0.1
