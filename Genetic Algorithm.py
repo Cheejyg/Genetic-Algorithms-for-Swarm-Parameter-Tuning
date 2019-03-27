@@ -44,8 +44,8 @@ n = 100
 nParents = 12
 properties = 12
 nSpecialisations = 6
-α = 0.1
-β = 0.5
+α = 0.5
+β = 0.1
 generations = 10000
 
 outputFilename = "Genetic Algorithm.log.json"
