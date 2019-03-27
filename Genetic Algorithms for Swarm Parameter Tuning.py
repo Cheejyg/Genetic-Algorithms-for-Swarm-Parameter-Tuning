@@ -401,7 +401,9 @@ def __global__() -> None:
 		typePredator = scene["predators"]["type"]
 		typePrey = scene["preys"]["type"]
 		if typePredator == 2:
-			waypointsPredator = scene["predators"]["waypoints"]
+			waypointsPredator = numpy.array(
+				scene["predators"]["waypoints"], dtype=float, copy=False, order=None, subok=False, ndmin=0
+			)
 		
 		if nPredators < 1:
 			positionsPredator.shape = (0, dimension)
