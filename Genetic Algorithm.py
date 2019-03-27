@@ -68,7 +68,7 @@ childrenSpecialisation = None
 parameters = None
 
 # multiprocessing
-batch_size = 4 / 2  # physical cores / 2
+batch_size = int(multiprocessing.cpu_count() / 2)
 process = None
 processReturn = None
 
