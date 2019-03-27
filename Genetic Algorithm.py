@@ -49,6 +49,7 @@ nSpecialisations = 6
 generations = 10000
 
 outputFilename = "Genetic Algorithm.log.json"
+verbosity = 1
 outputFile = None
 output = None
 
@@ -74,6 +75,7 @@ processReturn = None
 
 def __main__() -> None:
 	global outputFilename
+	global verbosity
 	global outputFile
 	global output
 	global population
@@ -186,13 +188,19 @@ def __main__() -> None:
 			outputFile.flush()
 			output = []
 		
-		print(
-			"generation: %d, n: %d\npopulation: \t\t%s\nspecialisation: \t%s\nfitness: \t\t\t%s\n" 
-			% (
-				generation, len(population), population.tolist(), populationSpecialisation.tolist(), 
-				populationFitness.tolist()
-			)
-		)
+		if verbosity > 0:
+			if verbosity == 1:
+				print(
+					"generation: %d, n: %d\n" % (generation, len(population))
+				)
+			elif verbosity == 2:
+				print(
+					"generation: %d, n: %d\npopulation: \t\t%s\nspecialisation: \t%s\nfitness: \t\t\t%s\n" 
+					% (
+						generation, len(population), population.tolist(), populationSpecialisation.tolist(), 
+						populationFitness.tolist()
+					)
+				)
 	outputFile.write(json.dumps(output)[1:-1])
 	outputFile.write("]")
 	outputFile.flush()
