@@ -111,7 +111,7 @@ def __main__() -> None:
 		for specialisation in range(nSpecialisations):
 			specialisation_population = numpy.where(populationSpecialisation == specialisation)[0]
 			alpha_normalisation[specialisation_population, specialisation] += 1 / len(specialisation_population)
-		population_fitness = (population_fitness * α) + (1 - α) * alpha_normalisation
+		population_fitness = (α * alpha_normalisation) + (1 - α) * population_fitness
 		
 		for parents in range(nParents):
 			a_specialisation, b_specialisation = (
