@@ -191,7 +191,7 @@ def __main__() -> None:
 		if verbosity > 0:
 			if verbosity == 1:
 				print(
-					"generation: %d, n: %d\n" % (generation, len(population))
+					"generation: %d, n: %d" % (generation, len(population))
 				)
 			elif verbosity == 2:
 				print(
