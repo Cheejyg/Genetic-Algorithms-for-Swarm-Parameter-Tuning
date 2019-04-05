@@ -105,7 +105,7 @@ def __main__() -> None:
 		population_fitness = numpy.copy(populationFitness)
 		population_fitness[numpy.arange(len(population)), populationSpecialisation] = 0
 		population_fitness = populationFitness - population_fitness
-		population_fitness = population_fitness / numpy.sum(population_fitness, axis=0)
+		population_fitness = population_fitness / numpy.sum(population_fitness, axis=0)  # normalise
 		
 		alpha_normalisation = numpy.zeros(population_fitness.shape, dtype=float)
 		for specialisation in range(nSpecialisations):
