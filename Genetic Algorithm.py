@@ -42,7 +42,7 @@ crossover_type = 2  # [0 = Uniform, 1 = Single-point, 2 = Two-point, k = k-point
 mutation_type = 0  # [0 = Bit, 1 = Flip, 2 = Boundary, 3 = Non-Uniform, 4 = Uniform, 5 = Gaussian, 6 = Shrink]
 n = 100
 nParents = 12
-properties = 12
+genes = 12
 nSpecialisations = 6
 α = 0.5
 β = 0.1
@@ -216,7 +216,7 @@ def __initialise__() -> None:
 	global process
 	global processReturn
 	
-	population = numpy.random.rand(n, properties) * search_space
+	population = numpy.random.rand(n, genes) * search_space
 	
 	# "seed" initial population
 	population[0][0] = 2
